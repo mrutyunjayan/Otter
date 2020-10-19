@@ -1,0 +1,61 @@
+version(1);
+project_name = "game";
+patterns = {
+"*.c",
+"*.cpp",
+"*.h",
+"*.m",
+"*.bat",
+"*.sh",
+"*.4coder",
+};
+blacklist_patterns = {
+".*",
+};
+load_paths_base = {
+ { ".", .relative = true, .recursive = true, },
+};
+load_paths = {
+ { load_paths_base, .os = "win", },
+ { load_paths_base, .os = "linux", },
+ { load_paths_base, .os = "mac", },
+};
+
+command_list = {
+ 	{ 
+		.name = "build dll",
+		.out = "*BUILD DLL*",
+		.footer_panel = true, 
+		.save_dirty_files = true,
+		.cmd = { { "build_dll.bat" , .os = "win"   },
+            { "./build.sh", .os = "linux" },
+            { "./build.sh", .os = "mac"   }, }, },
+    { 
+		.name = "build dll fullscreen",
+		.out = "*BUILD DLL*",
+		.footer_panel = false,
+		.save_dirty_files = true,
+		.cmd = { { "build_dll.bat" , .os = "win"   },
+            { "./build.sh", .os = "linux" },
+            { "./build.sh", .os = "mac"   }, }, },
+	{ 
+		.name = "build full fullscreen",
+		.out = "*FULL COMPILATION*",
+		.footer_panel = false,
+		.save_dirty_files = true,
+		.cmd = { { "build_full.bat" , .os = "win"   },
+            { "./build.sh", .os = "linux" },
+            { "./build.sh", .os = "mac"   }, }, },
+	{ 
+		.name = "debug",
+		.footer_panel = true,
+		.save_dirty_files = false,
+		.cmd = { { "debug.bat" , .os = "win"   },
+            { "./build.sh", .os = "linux" },
+            { "./build.sh", .os = "mac"   }, }, },
+};
+
+fkey_command[1] = "build dll";
+fkey_command[2] = "build dll fullscreen";
+fkey_command[3] = "build full fullscreen";
+fkey_command[5] = "debug";
