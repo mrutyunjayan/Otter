@@ -5,6 +5,13 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
+#include <stretchy_buffer.h>
+#pragma clang diagnostic pop
 
 #define localPersist static
 #define global static
@@ -37,12 +44,22 @@ typedef double f64;
 
 #define arrayCount(array) (sizeof(array) / sizeof(array[0]))
 
+#if OTTER_DEBUG
+#define assert(expression)\
+if(!(expression)) {\
+*(volatile int*)0 = 0;\
+}
+#else
+#define assert(expression)
+#endif
+
 #define STRING(name) #name
 
-//*************************************************************************
-// --------------------------SWAP------------------------------------------
-//*************************************************************************
+//~------------ Dynamic Array -------------
 
+// TODO(Jai): Implement own dynamic array
+
+//~-------------Swap ----------------------
 #define SWAP(a, b) do { \
 u8 swapTemp[(sizeof(a) == sizeof(b)) ? sizeof(a) : -1]; \
 memcpy(swapTemp, &a, sizeof(a)); \
@@ -50,10 +67,7 @@ memcpy(&b, &a, size(a)); \
 memcpy(&a, swap_temp, sizeof(a)); \
 } while(0)
 
-//*************************************************************************
-// ------------------NUMBER STUFF------------------------------------------
-//*************************************************************************
-
+//~----------- Number Stuff ----------------
 // NOTE(Jai): Round up the float value to int
 inline internal i32
 round_floatToI32(f32 number) {

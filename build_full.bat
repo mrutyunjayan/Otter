@@ -34,11 +34,16 @@ set pdbFileName=otter_%random%.pdb
 
 set code=%cd%\code
 
+set include_directories=^
+	-I^
+	%cd%\include
+
 set exports=^
 	-EXPORT:otterUpdateAndRender
 
 set defines=^
-	-DFPL_IMPLEMENTATION
+	-DFPL_IMPLEMENTATION^
+	-DOTTER_DEBUG
 
 set libs=^
 	User32.lib^
@@ -70,6 +75,7 @@ clang-cl^
 
 
 clang-cl^
+	%include_directories%^
 	%defines%^
 	%compiler_flags%^
 	%libs%^
