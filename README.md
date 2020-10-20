@@ -9,10 +9,6 @@
 
   I use Sean Barret's implementation of a dynamically sized array in my code (found at: https://github.com/nothings/stb). I plan on replacing this as well later on.
 
-## To build:
-  1. edit the second line of build_dll and build_full.bat to reflect the location of vcvarsall.bat in your machine
-  2. run build_full.bat
-
 ## Progress
  
 ## Super early in the process!
