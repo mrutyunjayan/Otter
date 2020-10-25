@@ -66,7 +66,8 @@
 //         sb_free(TYPE *a)           free the array
 //         sb_count(TYPE *a)          the number of elements in the array
 //         sb_push(TYPE *a, TYPE v)   adds v on the end of the array, a la push_back
-//         sb_add(TYPE *a, int n)     adds n uninitialized elements at end of array & returns pointer to first added
+//         sb_add(TYPE *a, int n)     adds n uninitialized elements at end of array & returns pointer to
+//                                    first added
 //         sb_last(TYPE *a)           returns an lvalue of the last item in the array
 //         a[n]                       access the nth (counting from 0) element of the array
 //

@@ -63,24 +63,20 @@ set dll_flags= ^
 
 pushd build
 
+:loop
+
 del *.pdb
 del otter.dll
 
 clang-cl^
 	%defines%^
+	%include_directories%^
 	%compiler_flags%^
 	%code%\otter.c^
 	-Feotter^
 	%dll_flags%
 
 
-clang-cl^
-	%include_directories%^
-	%defines%^
-	%compiler_flags%^
-	%libs%^
-	%code%\fpl_otter.c^
-	-Fegame^
-	%linker_flags%
+echo WScript.Sleep 2000 > %temp%\sleep.vbs & cscript %temp%\sleep.vbs %sleepMs% //B & del %temp%\sleep.vbs
 
-popd
+goto loop
