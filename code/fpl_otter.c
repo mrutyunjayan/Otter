@@ -1,10 +1,8 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Weverything"
-#include "final_platform_layer.h"
+#include <final_platform_layer.h>
 #pragma clang diagnostic pop
 
-#include "otter.h"
-#include "utils.h"
 #include "otter_platform.h"
 #include "fpl_otter.h"
 

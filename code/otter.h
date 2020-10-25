@@ -5,6 +5,11 @@
 
 #include "utils.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
+#include <stretchy_buffer.h>
+#pragma clang diagnostic pop
+
 typedef struct {
     void* pixels;
     u32 width;
@@ -23,4 +28,9 @@ typedef struct {
     b32 isInitialized;
 } otter_Memory;
 
+typedef struct {
+    void* assetData;
+} otter_GameState;
+
+#include "otter_renderer.h"
 #endif //OTTER_H

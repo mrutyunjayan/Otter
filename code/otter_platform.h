@@ -3,8 +3,6 @@
 #ifndef OTTER_PLATFORM_H
 #define OTTER_PLATFORM_H
 
-#include "utils.h"
-#include "otter_math.h"
 #include "otter.h"
 
 #define OTTER_UPDATE_AND_RENDER(name) void name(otter_Memory* memory,\

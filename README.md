@@ -14,7 +14,11 @@
 ## Super early in the process!
 - [ ] Software Renderer
   - - [x] Bresenham Line Algorithm
-  - - [x] Render Triangles
+  - - [ ] Render Triangles
+  - - - [x] Draw Triangles
+  - - - [ ] Fill Triangles
+  - - [ ] Render Circles
+  - - - [x] Bresenham Circle Drawing Algorithm
   - - [ ] Render Polygons
   
  - [ ] Asset Loading

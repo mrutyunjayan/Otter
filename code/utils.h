@@ -8,11 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
-#include <stretchy_buffer.h>
-#pragma clang diagnostic pop
-
 #define localPersist static
 #define global static
 #define internal static
@@ -45,6 +40,7 @@ typedef double f64;
 #define arrayCount(array) (sizeof(array) / sizeof(array[0]))
 
 #if OTTER_DEBUG
+#undef assert
 #define assert(expression)\
 if(!(expression)) {\
 *(volatile int*)0 = 0;\

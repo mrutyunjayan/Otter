@@ -2,6 +2,6 @@
 
 pushd build
 
-remedybg game.rdbg
+remedybg otter.rdbg
 
 popd

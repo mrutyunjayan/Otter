@@ -1,5 +1,5 @@
 version(1);
-project_name = "game";
+project_name = "Otter";
 patterns = {
 "*.c",
 "*.cpp",
@@ -43,7 +43,7 @@ command_list = {
 		.out = "*FULL COMPILATION*",
 		.footer_panel = false,
 		.save_dirty_files = true,
-		.cmd = { { "build_full.bat" , .os = "win"   },
+		.cmd = { { "build.bat" , .os = "win"   },
             { "./build.sh", .os = "linux" },
             { "./build.sh", .os = "mac"   }, }, },
 	{ 
@@ -52,7 +52,7 @@ command_list = {
 		.save_dirty_files = false,
 		.cmd = { { "debug.bat" , .os = "win"   },
             { "./build.sh", .os = "linux" },
-            { "./build.sh", .os = "mac"   }, }, },
+            { "./build.sh", .os = "mac"   }, }, }
 };
 
 fkey_command[1] = "build dll";
