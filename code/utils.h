@@ -59,9 +59,10 @@ if(!(expression)) {\
 #define SWAP(a, b) do { \
 u8 swapTemp[(sizeof(a) == sizeof(b)) ? sizeof(a) : -1]; \
 memcpy(swapTemp, &a, sizeof(a)); \
-memcpy(&b, &a, size(a)); \
-memcpy(&a, swap_temp, sizeof(a)); \
+memcpy(&a, &b, sizeof(a)); \
+memcpy(&b, swapTemp, sizeof(a)); \
 } while(0)
+
 
 //~----------- Number Stuff ----------------
 // NOTE(Jai): Round up the float value to int

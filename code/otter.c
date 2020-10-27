@@ -82,14 +82,19 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
         memory->isInitialized = true;
     }
     
-    Point2f centre = {
-        .x = 700.0f,
-        .y = 375.0f
-    };
-    f32 radius = 350.0f;
+    Point2f point1 = { 600.0f, 300.0f };
+    Point2f point2 = { 300.0f, 300.0f };
+    Point2f point3 = { 900.0f, 600.0f };
     
-    otter_drawCircleBresenham(videoBackbuffer,
-                              centre,
-                              radius,
-                              1.0f, 1.0f, 1.0f);
+#if 1
+    otter_fillTriangleBresenham(videoBackbuffer,
+                                point1, point2, point3,
+                                0.5f, 1.0f, 0.5f);
+#endif
+    
+    otter_drawTriangle(videoBackbuffer,
+                       point1, point2, point3,
+                       1.0f, 0.5f, 1.0f);
+    
+    int x = 5;
 }
