@@ -14,8 +14,9 @@ typedef struct {
     void* pixels;
     u32 width;
     u32 height;
-    u64 pitch;
-    u64 pixelStride;
+	u32 aspectRatio;
+    u32 pitch;
+    u32 pixelStride;
 } otter_OffscreenBuffer;
 
 typedef struct {

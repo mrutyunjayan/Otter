@@ -1,4 +1,7 @@
+@echo off
 call %cd%\build_dll.bat
+
+pushd build
 
 clang-cl^
 	%defines%^
@@ -7,6 +10,7 @@ clang-cl^
 	%libs%^
 	%code%\fpl_otter.c^
 	-Fegame^
-	%linker_flags%
+	%linker_flags%^
+	-SUBSYSTEM:WINDOWS
 
 popd

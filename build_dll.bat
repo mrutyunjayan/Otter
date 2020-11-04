@@ -1,6 +1,12 @@
 @echo off
 
-call J:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\Community\VC\Auxiliary\Build\vcvarsall.bat x86_amd64
+set start_minute=%time:~3,2%
+set start_minunte=%start_minute:~0,4%
+set start_second=%time:~6,2%
+set /A start_minute = %start_minute% * 60 
+set /A start_time = %start_minute% + %start_second%
+
+call J:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\Community\VC\Auxiliary\Build\vcvarsall.bat x86_amd64 >nul
 
 IF NOT EXIST build mkdir build
 
@@ -63,8 +69,8 @@ set dll_flags= ^
 
 pushd build
 
-del *.pdb
-del otter.dll
+del *.pdb >nul 2>nul
+del otter.dll >nul 2>nul
 
 clang-cl^
 	%defines%^
@@ -73,3 +79,13 @@ clang-cl^
 	%code%\otter.c^
 	-Feotter^
 	%dll_flags%
+
+set end_minute=%time:~3,2%
+set end_second=%time:~6,2%
+set /A end_minute = %end_minute% * 60
+set /A end_time = %end_minute% + %end_second%
+
+set /A compile_time = %end_time% - %start_time%
+
+echo    Compiled DLL in: ~%compile_time% second(s)
+popd

@@ -6,95 +6,115 @@
 OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
     
     otter_GameState* gameState = (otter_GameState*)memory->persistentStorage;
-    
+	gameState->assetData = gameState + sizeof(otter_GameState);
+    Mesh* meshCube = (Mesh*)gameState->assetData;
+	
     if (!memory->isInitialized) {
-        gameState->assetData = gameState + sizeof(otter_GameState);
-        
-        Mesh* meshCube = (Mesh*)gameState->assetData;
-        
         //Generate Cube
         //SOUTH
         {
-            Triangle3f triTemp = { 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f};
+            Triangle3f triTemp = { 100.0f, 100.0f, 0.0f,    100.0f, 300.0f, 0.0f,    300.0f, 300.0f, 0.0f};
             sb_push(meshCube->triangles, triTemp);
         }
         
         {
-            Triangle3f triTemp = { 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f };
+            Triangle3f triTemp = { 100.0f, 100.0f, 0.0f,    300.0f, 300.0f, 0.0f,    300.0f, 100.0f, 0.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         //EAST
         {
-            Triangle3f triTemp = { 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f };
+            Triangle3f triTemp = { 300.0f, 100.0f, 0.0f,    300.0f, 300.0f, 0.0f,    300.0f, 300.0f, 1.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         {
-            Triangle3f triTemp = { 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f };
+            Triangle3f triTemp = { 300.0f, 100.0f, 0.0f,    300.0f, 300.0f, 1.0f,    300.0f, 100.0f, 1.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         //NORTH
         {
-            Triangle3f triTemp ={ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f };
+            Triangle3f triTemp ={ 300.0f, 100.0f, 1.0f,    300.0f, 300.0f, 1.0f,    100.0f, 300.0f, 1.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         {
-            Triangle3f triTemp = { 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f };
+            Triangle3f triTemp = { 300.0f, 100.0f, 1.0f,    100.0f, 300.0f, 1.0f,    100.0f, 100.0f, 1.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         //WEST
         {
-            Triangle3f triTemp = { 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f };
+            Triangle3f triTemp = { 100.0f, 100.0f, 1.0f,    100.0f, 300.0f, 1.0f,    100.0f, 300.0f, 0.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         {
-            Triangle3f triTemp = { 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f };
+            Triangle3f triTemp = { 100.0f, 100.0f, 1.0f,    100.0f, 300.0f, 0.0f,    100.0f, 100.0f, 0.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         //TOP
         {
-            Triangle3f triTemp = { 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f };
+            Triangle3f triTemp = { 100.0f, 300.0f, 0.0f,    100.0f, 300.0f, 1.0f,    300.0f, 300.0f, 1.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         {
-            Triangle3f triTemp = { 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f };
+            Triangle3f triTemp = { 100.0f, 300.0f, 0.0f,    300.0f, 300.0f, 1.0f,    300.0f, 300.0f, 0.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         //BOTTOM
         {
-            Triangle3f triTemp = { 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f };
+            Triangle3f triTemp = { 300.0f, 100.0f, 1.0f,    100.0f, 100.0f, 1.0f,    100.0f, 100.0f, 0.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         {
-            Triangle3f triTemp = { 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f };
+            Triangle3f triTemp = { 300.0f, 100.0f, 1.0f,    100.0f, 100.0f, 0.0f,    300.0f, 100.0f, 0.0f };
             sb_push(meshCube->triangles, triTemp);
         }
         
         memory->isInitialized = true;
     }
-    
-    Point2f point1 = { 600.0f, 300.0f };
-    Point2f point2 = { 300.0f, 300.0f };
-    Point2f point3 = { 900.0f, 600.0f };
-    
+	
+#if 0
+	Point3f point1_3d = { 100.0f, 100.0f, 0.0f };
+	Point3f point2_3d = { 100.0f, 300.0f, 0.0f };
+	Point3f point3_3d = { 300.0f, 300.0f, 0.0f };
+	Triangle3f triangle3d = { point1_3d, point2_3d, point3_3d };
+	Triangle2f triangle = otter_project3DTriangleto2D(triangle3d,
+													  videoBackbuffer->width, videoBackbuffer->height);
+	otter_fillTriangleBresenham(videoBackbuffer,
+								triangle,
+								0.5f, 0.5f, 0.5f);
+	otter_drawTriangle(videoBackbuffer,
+					   triangle,
+					   1.0f, 1.0f, 1.0f);
+#else
+	u32 count = (u32)sb_count(meshCube->triangles);
+	for (uint i = 0; i < count; ++i) {
+		
+		Triangle2f tempTriangle = otter_project3DTriangleto2D(meshCube->triangles[i],
+															  videoBackbuffer->width, videoBackbuffer->height);
+		
+		
 #if 1
-    otter_fillTriangleBresenham(videoBackbuffer,
-                                point1, point2, point3,
-                                0.5f, 1.0f, 0.5f);
+		otter_fillTriangleBresenham(videoBackbuffer,
+									tempTriangle,
+									0.5f, 0.5f, 0.5f);
+		
 #endif
-    
-    otter_drawTriangle(videoBackbuffer,
-                       point1, point2, point3,
-                       1.0f, 0.5f, 1.0f);
-    
-    int x = 5;
+		
+#if 1
+		otter_drawTriangle(videoBackbuffer,
+						   tempTriangle,
+						   1.0f, 1.0f, 1.0f);
+#endif
+	}
+#endif
+	
+	int x = 5;
 }

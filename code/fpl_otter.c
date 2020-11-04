@@ -89,14 +89,16 @@ fpl_handleError() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch-enum"
 internal void
-fpl_handleEvent() {
+fpl_handleEvent(fplEvent* currentEvent) {
     
-    fplEvent currentEvent;
-    while (fplPollEvent(&currentEvent)) {
-        switch (currentEvent.type) {
+    while (fplPollEvent(currentEvent)) {
+		
+        switch (currentEvent->type) {
+			
             case fplEventType_Window: {
                 // A window event, like resize, lost/got focus, etc.
-                switch (currentEvent.window.type) {
+                switch (currentEvent->window.type) {
+					
                     case fplWindowEventType_Closed: {
                         global_running = false;
                     } break;
@@ -109,9 +111,9 @@ fpl_handleEvent() {
                             //! Top position in pixels
                             .y = 0,
                             //! Width in pixels
-                            .width = (i32)currentEvent.window.size.width,
+                            .width = (i32)currentEvent->window.size.width,
                             //! Height in pixels
-                            .height = (i32)currentEvent.window.size.height
+                            .height = (i32)currentEvent->window.size.height
                         };
                         global_videoBackbufferPtr->outputRect = newRect;
                     } break;
@@ -121,12 +123,13 @@ fpl_handleEvent() {
             } break;
             case fplEventType_Keyboard: {
                 // A keyboard event, like key down/up, pressed, etc.
-                switch (currentEvent.keyboard.type) {
+                switch (currentEvent->keyboard.type) {
+					
                     case fplKeyboardEventType_Button: {
-                        fplButtonState state = currentEvent.keyboard.buttonState;
+                        fplButtonState state = currentEvent->keyboard.buttonState;
                         
                         // ... Handle the key code
-                        uint64_t keyCode = currentEvent.keyboard.keyCode;
+                        uint64_t keyCode = currentEvent->keyboard.keyCode;
                         if (state >= fplButtonState_Press) {
                             if (keyCode == 87 || keyCode == 119) {
                                 // Letter W is held down
@@ -146,23 +149,30 @@ fpl_handleEvent() {
                         // or
                         
                         // ... handle the mapped key
-                        fplKey mappedKey = currentEvent.keyboard.mappedKey;
+                        fplKey mappedKey = currentEvent->keyboard.mappedKey;
                         if (state == fplButtonState_Release) {
+							
+							// F4 key pressed
                             if (mappedKey == fplKey_F4) {
-                                // F4 key pressed
-                                fplKeyboardModifierFlags keyModifier = currentEvent.keyboard.modifiers;
+								
+#if 0                                
+								fplKeyboardModifierFlags keyModifier = currentEvent->keyboard.modifiers;
                                 if (keyModifier == fplKeyboardModifierFlags_LAlt
-                                    || keyModifier == fplKeyboardModifierFlags_RAlt) {
+									|| keyModifier == fplKeyboardModifierFlags_RAlt) {
+									
                                     global_running = false;
                                 }
+#endif
                             }
                         }
                     } break;
                     
                     case fplKeyboardEventType_Input:
                     {
-                        if(currentEvent.keyboard.keyCode > 0 && currentEvent.keyboard.keyCode < 0x10000) {
+                        if(currentEvent->keyboard.keyCode > 0 
+						   && currentEvent->keyboard.keyCode < 0x10000) {
                             // Handle character input
+							
                         }
                     } break;
                     default: break;
@@ -170,14 +180,14 @@ fpl_handleEvent() {
             } break;
             case fplEventType_Mouse: {
                 // A mouse event, like mouse button down/up, mouse move, etc.
-                switch (currentEvent.mouse.type) {
+                switch (currentEvent->mouse.type) {
                     // ...
                     default: break;
                 }
             } break;
             case fplEventType_Gamepad: {
                 // A gamepad event, like connected/disconnected, state-updated etc.
-                switch (currentEvent.gamepad.type) {
+                switch (currentEvent->gamepad.type) {
                     // ...
                     default: break;
                 }
@@ -262,9 +272,11 @@ main(int argc, char** argv) {
         .pixels = global_videoBackbufferPtr->pixels, 
         .width = global_videoBackbufferPtr->width,
         .height = global_videoBackbufferPtr->height,
-        .pitch = global_videoBackbufferPtr->width * global_videoBackbufferPtr->pixelStride,
-        .pixelStride = global_videoBackbufferPtr->pixelStride
+        .pitch = (u32)(global_videoBackbufferPtr->lineWidth),
+        .pixelStride = (u32)global_videoBackbufferPtr->pixelStride
     };
+	otter_videoBackbuffer.aspectRatio = 
+		otter_videoBackbuffer.height / otter_videoBackbuffer.width;
     
     if (otter_memory.persistentStorage) {
         
@@ -323,27 +335,36 @@ main(int argc, char** argv) {
                 fileModified = false;
             }
 #endif
-            fpl_clearVideoBackbuffer();
             
-            fpl_handleEvent();
+			fplEvent currentEvent;
+            fpl_handleEvent(&currentEvent);
             
+			fpl_clearVideoBackbuffer();
+			
             if(game.updateAndRender) {
-                
-                game.updateAndRender(&otter_memory, 
-                                     &otter_videoBackbuffer);
-            }
-            
-            fplVideoFlip();
-        }
-    } else {
-        
-        fplPlatformResultType initResult = fplGetPlatformResult();
-        const char *initResultStr = fplGetPlatformResultTypeString(initResult);
-        const char *errStr = fplGetLastError();
-        fplConsoleFormatError("FPL-ERROR[%s]: %s\n", initResultStr, errStr);
-        
-        return -1;
-    }
-    
-    return 0;
+                otter_videoBackbuffer.width = global_videoBackbufferPtr->width;
+				otter_videoBackbuffer.height = global_videoBackbufferPtr->height;
+				otter_videoBackbuffer.pitch =(u32)(global_videoBackbufferPtr->lineWidth);
+				otter_videoBackbuffer.pixels = global_videoBackbufferPtr->pixels; 
+				otter_videoBackbuffer.aspectRatio = 
+					otter_videoBackbuffer.height / otter_videoBackbuffer.width;
+				
+				game.updateAndRender(&otter_memory, 
+									 &otter_videoBackbuffer);
+			}
+			
+			fplVideoFlip();
+		}
+	} else {
+		
+		fplPlatformResultType initResult = fplGetPlatformResult();
+		const char *initResultStr = fplGetPlatformResultTypeString(initResult);
+		const char *errStr = fplGetLastError();
+		fplConsoleFormatError("FPL-ERROR[%s]: %s\n", initResultStr, errStr);
+		
+		return -1;
+	}
+	
+	fplPlatformRelease();
+	return 0;
 }
