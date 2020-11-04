@@ -14,13 +14,20 @@
 ## Super early in the process!
 - [ ] Software Renderer
   - - [x] Bresenham Line Algorithm
-  - - [ ] Render Triangles
+  - - [x] Render Triangles
   - - - [x] Draw Triangles
-  - - - [ ] Fill Triangles
+  - - - [x] Fill Triangles
   - - [ ] Render Circles
   - - - [x] Bresenham Circle Drawing Algorithm
+  - - - [ ] Fill Circles
   - - [ ] Render Polygons
+  - - [ ] Project from 3D to 2D
   
  - [ ] Asset Loading
   
 - [ ] Collissions
+
+## Known Issues
+- The window close events are not being handled properly -> if the game is closed with Alt + F4 or by
+  clicking the close button, only the window closes and the game runs in the background. This is due
+  to something wrong with my understanding of FPL and how to handle the main window callback function.
