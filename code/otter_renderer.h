@@ -298,16 +298,6 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 		// trace the second edge till the drawpoint is in the same y as the first point
 		while (drawPoint_1.y != drawPoint_2.y) {
 			
-			/* 			
-						if ((dx_2 == 0) 
-							&& (!swapped_2)) {
-							
-							drawPoint_2.y += 1;
-							fault_2 = -1;
-							break;
-						}
-						 */
-			
 			while (fault_2 >= 0) {
 				
 				if (swapped_2) { drawPoint_2.x += dxSign_2;  }

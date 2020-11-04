@@ -106,7 +106,7 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 #if 1
 		otter_fillTriangleBresenham(videoBackbuffer,
 									tempTriangle,
-									0.5f, 0.5f, 0.5f);
+									0.2f, 0.2f, 0.1f);
 		
 #endif
 		
