@@ -9,7 +9,9 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 	gameState->assetData = gameState + sizeof(otter_GameState);
     Mesh* meshCube = (Mesh*)gameState->assetData;
 	
-    if (!memory->isInitialized) {
+	// NOTE(Jai): Using dynamic array for faster protyping for now
+	// TODO(Jai): Get rid dynamic array and switch to using the arena for asset data
+	if (!memory->isInitialized) {
         //Generate Cube
         //SOUTH
         {
