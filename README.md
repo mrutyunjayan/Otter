@@ -20,8 +20,8 @@
   - - [ ] Render Circles
   - - - [x] Bresenham Circle Drawing Algorithm
   - - - [ ] Fill Circles
-  - - [ ] Render Polygons
-  - - [ ] Project from 3D to 2D
+  - - [X] Render Polygons
+  - - [X] Project from 3D to 2D
   
  - [ ] Asset Loading
   
