@@ -254,19 +254,25 @@ main(int argc, char** argv) {
     }
     
     otter_Memory otter_memory = {
-        .persistentStorageSize = megaBytes(64),
-        .transientStorageSize = gigaBytes(1)
+        .persistentStorageSize = MB(64),
+        .transientStorageSize = GB(1)
     };
     
-    u64 totalSize = otter_memory.persistentStorageSize
+    u64 totalMemorySize = otter_memory.persistentStorageSize
         + otter_memory.transientStorageSize;
     
-    void* otterMemoryBlock = fplMemoryAllocate((size_t)totalSize);
-    
-    otter_memory.persistentStorage = otterMemoryBlock;
-    otter_memory.transientStorage = (u8*)otter_memory.persistentStorage
-        + otter_memory.persistentStorageSize;
-    
+	Arena arena = {
+		.buffer = fplMemoryAllocate((size_t)totalMemorySize),
+		.bufferSize = totalMemorySize
+	};
+	
+    arena_alloc(&arena,
+				otter_memory.persistentStorageSize);
+	otter_memory.persistentStorage = &arena.buffer[arena.memoryBlockStart];
+    arena_alloc(&arena,
+				otter_memory.transientStorageSize);
+	otter_memory.transientStorage = &arena.buffer[arena.memoryBlockStart];
+	
     global_videoBackbufferPtr = fplGetVideoBackbuffer();
     otter_OffscreenBuffer otter_videoBackbuffer = {
         .pixels = global_videoBackbufferPtr->pixels, 

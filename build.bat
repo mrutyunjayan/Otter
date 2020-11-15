@@ -1,4 +1,8 @@
 @echo off
+
+echo FULL BUILD
+echo ===
+
 call %cd%\build_dll.bat
 
 pushd build
@@ -12,5 +16,6 @@ clang-cl^
 	-Fegame^
 	%linker_flags%^
 	-SUBSYSTEM:WINDOWS
+
 
 popd

@@ -1,10 +1,11 @@
 @echo off
 
-call J:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\Community\VC\Auxiliary\Build\vcvarsall.bat x86_amd64 \>nul
+call "J:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64 >nul
 
 IF NOT EXIST build mkdir build
 
 set common_compiler_flags=^
+	-std:c11^
 	-MTd^
 	-nologo^
 	-FC^
