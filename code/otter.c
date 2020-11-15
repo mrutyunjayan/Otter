@@ -193,14 +193,15 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 			.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
 		};
 		
+#if 0		
 		otter_fillTriangleBresenham(videoBackbuffer,
 									drawTriangle,
 									1.0f, 0.0f, 1.0f);
-		/* 
-				otter_drawTriangle(videoBackbuffer,
-								   drawTriangle,
-								   1.0f, 1.0f, 1.0f);
-		 */
+#endif
+		
+		otter_drawTriangle(videoBackbuffer,
+						   drawTriangle,
+						   1.0f, 1.0f, 1.0f);
 	}
 	
 	i32 end;

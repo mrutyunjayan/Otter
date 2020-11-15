@@ -32,3 +32,7 @@
   clicking the close button, only the window closes and the game runs in the background. This is due
   to something wrong with my understanding of FPL and how to handle the main window callback function.
 - Triangle filling algorithm is broken
+
+## Images
+
+![Alt text](relative/path/to/img.jpg?raw=true "Title")
