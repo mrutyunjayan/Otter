@@ -130,6 +130,7 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 	rotationX.matrix[2][2] = cosf(theta * 0.5f);
 	rotationX.matrix[3][3] = 1;
 	
+#if 1
 	// Draw the triangles
 	for (u32 i = 0; i < 12; ++i) {
 		
@@ -137,7 +138,6 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 		Triangle3f translatedTriangle = {0};
 		Triangle3f rotatedTriangleZ = {0};
 		Triangle3f rotatedTriangleZX = {0};
-#if 1
 		
 		// Rotate Z
 		rotatedTriangleZ.points[0] = transformVector3D(meshCube->triangles[i].points[0],
@@ -157,12 +157,9 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 		
 		// Translate the triagle in z, away from the camera
 		translatedTriangle = rotatedTriangleZX;
-#else
-		translatedTriangle = meshCube->triangles[i];
-#endif
-		translatedTriangle.points[0].z += 2.0f;
-		translatedTriangle.points[1].z += 2.0f;
-		translatedTriangle.points[2].z += 2.0f;
+		translatedTriangle.points[0].z += 3.0f;
+		translatedTriangle.points[1].z += 3.0f;
+		translatedTriangle.points[2].z += 3.0f;
 		
 		// Project triangles from 3D -> 2D
 		projectedTriangle.points[0] = transformVector3D(translatedTriangle.points[0],
@@ -193,16 +190,83 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 			.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
 		};
 		
-#if 0		
+#if 0
 		otter_fillTriangleBresenham(videoBackbuffer,
 									drawTriangle,
-									1.0f, 0.0f, 1.0f);
-#endif
-		
+									0.5f, 0.5f, 0.5f);
+#else
 		otter_drawTriangle(videoBackbuffer,
 						   drawTriangle,
 						   1.0f, 1.0f, 1.0f);
+#endif
 	}
+#else
+	Triangle3f projectedTriangle = {0};
+	Triangle3f translatedTriangle = {0};
+	Triangle3f rotatedTriangleZ = {0};
+	Triangle3f rotatedTriangleZX = {0};
+	
+	// Rotate Z
+	rotatedTriangleZ.points[0] = transformVector3D(meshCube->triangles[0].points[0],
+												   &rotationZ);
+	rotatedTriangleZ.points[1] = transformVector3D(meshCube->triangles[0].points[1],
+												   &rotationZ);
+	rotatedTriangleZ.points[2] = transformVector3D(meshCube->triangles[0].points[2],
+												   &rotationZ);
+	
+	// Rotate X
+	rotatedTriangleZX.points[0] = transformVector3D(rotatedTriangleZ.points[0],
+													&rotationX);
+	rotatedTriangleZX.points[1] = transformVector3D(rotatedTriangleZ.points[1],
+													&rotationX);
+	rotatedTriangleZX.points[2] = transformVector3D(rotatedTriangleZ.points[2],
+													&rotationX);
+	
+	// Translate the triagle in z, away from the camera
+	translatedTriangle = rotatedTriangleZX;
+	translatedTriangle.points[0].z += 2.0f;
+	translatedTriangle.points[1].z += 2.0f;
+	translatedTriangle.points[2].z += 2.0f;
+	
+	// Project triangles from 3D -> 2D
+	projectedTriangle.points[0] = transformVector3D(translatedTriangle.points[0],
+													&projection);
+	projectedTriangle.points[1] = transformVector3D(translatedTriangle.points[1],
+													&projection);
+	projectedTriangle.points[2] = transformVector3D(translatedTriangle.points[2],
+													&projection);
+	// Scale the  triangles into view
+	projectedTriangle.points[0].x += 1.0f;
+	projectedTriangle.points[0].y += 1.0f;
+	projectedTriangle.points[0].x *= 0.5f * (f32)screenWidth;
+	projectedTriangle.points[0].y *= 0.5f * (f32)screenHeight;
+	
+	projectedTriangle.points[1].x += 1.0f;
+	projectedTriangle.points[1].y += 1.0f;
+	projectedTriangle.points[1].x *= 0.5f * (f32)screenWidth;
+	projectedTriangle.points[1].y *= 0.5f * (f32)screenHeight;
+	
+	projectedTriangle.points[2].x += 1.0f;
+	projectedTriangle.points[2].y += 1.0f;
+	projectedTriangle.points[2].x *= 0.5f * (f32)screenWidth;
+	projectedTriangle.points[2].y *= 0.5f * (f32)screenHeight;
+	
+	Triangle2f drawTriangle = {
+		.a = {projectedTriangle.points[0].x, projectedTriangle.points[0].y },
+		.b = {projectedTriangle.points[1].x, projectedTriangle.points[1].y },
+		.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
+	};
+	
+#if 0
+	otter_fillTriangleBresenham(videoBackbuffer,
+								drawTriangle,
+								0.5f, 0.5f, 0.5f);
+#else
+	otter_drawTriangle(videoBackbuffer,
+					   drawTriangle,
+					   1.0f, 1.0f, 1.0f);
+#endif
+#endif
 	
 	i32 end;
 }

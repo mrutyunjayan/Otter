@@ -1,6 +1,9 @@
 /* date = October 23rd 2020 8:50 pm */
-
 #include "otter.h"
+
+#if defined(OTTER_DEBUG)
+#include "stdio.h"
+#endif
 
 inline internal Point3i
 Point3fToPoint3i(Point3f point_float) {
@@ -136,7 +139,7 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
     Point2i point1 = Point2fToPoint2i(triangle.points[0]);
     Point2i point2 = Point2fToPoint2i(triangle.points[1]);
     Point2i point3 = Point2fToPoint2i(triangle.points[2]);
-    
+	
     u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
         | (u32)round_floatToI32(green * 255.0f) << 8
         | (u32)round_floatToI32(blue * 255.0f)  << 0;
@@ -150,7 +153,7 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
     if (point2.y < point1.y) {
         SWAP(point2, point1);
     }
-    
+	
     Point2i drawPoint_1, drawPoint_2;
     
 	i32 dx_1 = 2 * (point3.x - point1.x);
@@ -246,6 +249,57 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 			
 		}
 	}
+#if defined(OTTER_DEBUG)
+	printf("    Point 1: %d, %d\n"
+		   "    Point 2: %d, %d\n"
+		   "    Point 3: %d, %d\n\n",
+		   point1.x , point1.y, point2.x, point2.y, point3.x, point3.y);
+	
+	for (i32 i = (i32)videoBackbuffer->width; i > 0; --i) {
+		Point2i drawpoint = { .y = point1.y, .x = i };
+		
+		otter_paintPixel(videoBackbuffer, 
+						 drawpoint,
+						 0xFF77FFFF);
+	}
+	for (i32 i = (i32)videoBackbuffer->height; i > 0; --i) {
+		Point2i drawpoint = { .y = i, .x = point1.x };
+		
+		otter_paintPixel(videoBackbuffer, 
+						 drawpoint,
+						 0xFF77FFFF);
+	}
+	
+	for (i32 i = (i32)videoBackbuffer->width; i > 0; --i) {
+		Point2i drawpoint = { .y = point2.y, .x = i };
+		
+		otter_paintPixel(videoBackbuffer, 
+						 drawpoint,
+						 0xFFFF77FF);
+	}
+	for (i32 i = (i32)videoBackbuffer->height; i > 0; --i) {
+		Point2i drawpoint = { .y = i, .x = point2.x };
+		
+		otter_paintPixel(videoBackbuffer, 
+						 drawpoint,
+						 0xFFFF77FF);
+	}
+	
+	for (i32 i = (i32)videoBackbuffer->width; i > 0; --i) {
+		Point2i drawpoint = { .y = point3.y, .x = i };
+		
+		otter_paintPixel(videoBackbuffer, 
+						 drawpoint,
+						 0xFFFFFF77);
+	}
+	for (i32 i = (i32)videoBackbuffer->height; i > 0; --i) {
+		Point2i drawpoint = { .y = i, .x = point3.x };
+		
+		otter_paintPixel(videoBackbuffer, 
+						 drawpoint,
+						 0xFFFFFF77);
+	}
+#endif
 }
 
 internal void
@@ -363,27 +417,27 @@ otter_drawCircleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 }
 
 internal Vec3f
-transformVector3D(Vec3f input,
+transformVector3D(Vec3f vector,
 				  const Mat4x4* transform) {
 	
 	Vec3f result = {0};
 	
-	result.x = input.x * transform->matrix[0][0]
-		+ input.y * transform->matrix[1][0]
-		+ input.z * transform->matrix[2][0]
+	result.x = vector.x * transform->matrix[0][0]
+		+ vector.y * transform->matrix[1][0]
+		+ vector.z * transform->matrix[2][0]
 		+ transform->matrix[3][0];
-	result.y = input.x * transform->matrix[0][1]
-		+ input.y * transform->matrix[1][1]
-		+ input.z * transform->matrix[2][1]
+	result.y = vector.x * transform->matrix[0][1]
+		+ vector.y * transform->matrix[1][1]
+		+ vector.z * transform->matrix[2][1]
 		+ transform->matrix[3][1];
-	result.z = input.x * transform->matrix[0][2]
-		+ input.y * transform->matrix[1][2]
-		+ input.z * transform->matrix[2][2]
+	result.z = vector.x * transform->matrix[0][2]
+		+ vector.y * transform->matrix[1][2]
+		+ vector.z * transform->matrix[2][2]
 		+ transform->matrix[3][2];
 	
-	f32 w = input.x * transform->matrix[0][3]
-		+ input.y * transform->matrix[1][3]
-		+ input.z * transform->matrix[2][3]
+	f32 w = vector.x * transform->matrix[0][3]
+		+ vector.y * transform->matrix[1][3]
+		+ vector.z * transform->matrix[2][3]
 		+ transform->matrix[3][3];
 	
 	// Project from 4D space to 3D Cartesian space

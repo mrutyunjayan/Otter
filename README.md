@@ -35,4 +35,4 @@
 
 ## Images
 
-![Alt text](screenshots/wireframeCube.png?raw=true "wireframeCube")
+![Alt text](screenshots/wireframeCube.gif?raw=true "wireframeCube")
