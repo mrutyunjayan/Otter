@@ -20,10 +20,14 @@
   - - [ ] Render Circles
   - - - [x] Bresenham Circle Drawing Algorithm
   - - - [ ] Fill Circles
-  - - [X] Render Polygons
-  - - [X] Project from 3D to 2D
+  - - [x] Render Polygons
+  - - [x] Project from 3D to 2D
+  - - [ ] Normals
+  - - [ ] Culling
+  - - [ ] Lighting
   
  - [ ] Asset Loading
+  - - [ ] .obj files
   
 - [ ] Collissions
 
