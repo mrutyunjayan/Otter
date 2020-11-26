@@ -20,12 +20,19 @@
   - - [ ] Render Circles
   - - - [x] Bresenham Circle Drawing Algorithm
   - - - [ ] Fill Circles
-  - - [X] Render Polygons
-  - - [X] Project from 3D to 2D
+  - - [x] Render Polygons
+  - - [x] Project from 3D to 2D
+  - - [ ] Normals
+  - - [ ] Culling
+  - - [ ] Lighting
   
  - [ ] Asset Loading
+  - - [ ] .obj files
+  
+  - [ ] Hardware Rendering
   
 - [ ] Collissions
+
 
 ## Known Issues
 - The window close events are not being handled properly -> if the game is closed with Alt + F4 or by
