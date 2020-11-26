@@ -7,7 +7,7 @@
 
 #if defined(FPL_PLATFORM_WINDOWS)
 
-typedef struct {
+typedef struct win32_GameCode{
     // either of these callbacks can be 0, check validity before call
     otter_updateAndRender* updateAndRender;
     

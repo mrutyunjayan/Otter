@@ -15,7 +15,6 @@ clang-cl^
 	%code%\fpl_otter.c^
 	-Fegame^
 	%linker_flags%^
-	
-rem -SUBSYSTEM:WINDOWS
+	-SUBSYSTEM:WINDOWS
 
 popd

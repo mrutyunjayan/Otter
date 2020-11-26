@@ -10,7 +10,7 @@
 #include <stretchy_buffer.h>
 #pragma clang diagnostic pop
 
-typedef struct {
+typedef struct otter_OffscreenBuffer {
     void* pixels;
     u32 width;
     u32 height;
@@ -19,7 +19,7 @@ typedef struct {
     u32 pixelStride;
 } otter_OffscreenBuffer;
 
-typedef struct {
+typedef struct otter_Memory {
     void* transientStorage;
     void* persistentStorage;
     
@@ -29,47 +29,51 @@ typedef struct {
     b32 isInitialized;
 } otter_Memory;
 
-typedef struct {
+typedef struct otter_GameState {
     void* assetData;
 } otter_GameState;
 
 //~ Rendering
 
-typedef union {
+typedef union  Point3f {
     struct {
 		f32 x;
 		f32 y;
 		f32 z;
 	};
 	f32 coords[3];
-} Point3f, Vec3f;
+} Point3f;
+typedef Point3f Vec3f;
 
-typedef union {
+typedef union Point3i {
 	struct {
 		i32 x;
 		i32 y;
 		i32 z;
 	};
 	i32 coords[3];
-} Point3i, Vec3i;
+} Point3i;
+typedef Point3i Vec3i;
 
-typedef union {
+typedef union Point2f{
     struct {
 		f32 x;
 		f32 y;
 	};
 	f32 coords[2];
-} Point2f, Vec2f;
+} Point2f;
+typedef Point2f Vec2f;
 
-typedef union {
+typedef union Point2i {
     struct {
 		i32 x;
 		i32 y;
 	};
 	i32 coords[2];
-} Point2i, Vec2i;
+} Point2i;
+typedef Point2i Vec2i;
 
-typedef union {
+typedef union Triangle2i {
 	struct {
 		Point2i a;
 		Point2i b;
@@ -78,7 +82,7 @@ typedef union {
 	Point2i points[3];
 } Triangle2i;
 
-typedef union {
+typedef union Triangle2f {
 	struct {
 		Point2f a;
 		Point2f b;
@@ -87,7 +91,7 @@ typedef union {
 	Point2f points[3];
 } Triangle2f;
 
-typedef union {
+typedef union Triangle3i {
 	struct {
 		Point3i a;
 		Point3i b;
@@ -96,7 +100,7 @@ typedef union {
 	Point3i points[3];
 } Triangle3i;
 
-typedef union {
+typedef union Triangle3f {
 	struct {
 		Point3f a;
 		Point3f b;
@@ -105,13 +109,13 @@ typedef union {
 	Point3f points[3];
 } Triangle3f;
 
-typedef struct {
+typedef struct Mesh {
     Triangle3f* triangles;
 } Mesh;
 
 //~ Matrices
 
-typedef union {
+typedef union Mat4x4 {
 	f32 array[16]; // 4 rows of 4 elements
 	f32 matrix[4][4];
 } Mat4x4;

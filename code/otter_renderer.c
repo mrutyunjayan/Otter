@@ -84,7 +84,7 @@ otter_drawLineBresenham(otter_OffscreenBuffer* videoBackbuffer,
     else {
         
         i32 fault = dy / 2;
-        while (true){
+        while (true) {
             
             otter_paintPixel(videoBackbuffer,
                              drawPoint,
@@ -130,20 +130,151 @@ otter_drawTriangle(otter_OffscreenBuffer* videoBackbuffer,
                             colour,
                             point2, point3);
 }
+// sunshine2k.de
+internal inline void
+fillFlatSideTriangle(otter_OffscreenBuffer* videoBackbuffer,
+					 Point2i point1, Point2i point2, Point2i point3,
+					 u32 colour) {
+	
+    Point2i drawPoint_1 = point1;
+	Point2i drawPoint_2 = point1;
+    
+	// first edge
+	i32 dx_1 = 2 * (point3.x - point1.x);
+    i32 dxSign_1 = (dx_1 < 0) ? -1 : 1;
+    dx_1 *= dxSign_1;
+    i32 dy_1 = 2 * (point3.y - point1.y);
+	i32 dySign_1 = (dy_1 < 0) ? -1 : 1;
+    dy_1 *= dySign_1;
+    b32 swapped_1 = false;
+    if (dx_1 < dy_1) { SWAP(dx_1, dy_1); swapped_1 = true; }
+    i32 fault_1 = 2 * dy_1 - dx_1;
+	
+	// second edge
+    i32 dx_2 = 2 * (point2.x - point1.x);
+    i32 dxSign_2 = (dx_2 < 0) ? -1 : 1;
+    dx_2 *= dxSign_2;
+    i32 dy_2 = 2 * (point2.y - point1.y);
+	i32 dySign_2 = (dy_2 < 0) ? -1 : 1;
+    dy_2 *= dySign_2;
+	b32 swapped_2 = false;
+    if (dx_2 < dy_2) { SWAP(dx_2, dy_2); swapped_2 = true; }
+    i32 fault_2 = 2 * dy_2 - dx_2;
+	
+	i32 largestDistance = dx_1 / 2;
+	/* 
+			((point3.y - point1.y) > (point2.y - point1.y))
+			? (point3.y - point1.y) : (point2.y - point1.y);
+	 */
+    
+	// iterate from the topmost y to the lowermost y
+	for (i32 i = 0; i <= largestDistance; ++i) {
+		
+		//draw a line between the two drawpoints
+		otter_drawLineBresenham(videoBackbuffer,
+								colour,
+								drawPoint_1, drawPoint_2);
+		
+		// trace the first edge till we move once in y
+		while (fault_1 >= 0) {
+			
+			if (swapped_1) { drawPoint_1.x += dxSign_1; }
+			else { drawPoint_1.y += dySign_2; }
+			
+			fault_1 -= 2 * dx_1;
+		}
+		
+		if (swapped_1) { drawPoint_1.y += dySign_1; }
+		else { drawPoint_1.x += dxSign_1; }
+		
+		fault_1 += 2 * dy_1;
+		
+		// trace the second edge till the drawpoint is in the same y as the first point
+		while (drawPoint_2.y != drawPoint_1.y) {
+			
+			while (fault_2 >= 0) {
+				
+				if (swapped_2) { drawPoint_2.x += dxSign_2; }
+				else { drawPoint_2.y += dySign_2; }
+				
+				fault_2 -= 2 * dx_2;
+			}
+			
+			if (swapped_2) { drawPoint_2.y += dySign_2; }
+			else { drawPoint_2.x += dxSign_2; }
+			
+			fault_2 += 2 * dy_2;
+		}
+	}
+}
 
 internal void
-otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
-                            Triangle2f triangle,
-                            f32 red, f32 green, f32 blue) {
-    
-    Point2i point1 = Point2fToPoint2i(triangle.points[0]);
-    Point2i point2 = Point2fToPoint2i(triangle.points[1]);
-    Point2i point3 = Point2fToPoint2i(triangle.points[2]);
+otter_fillTriangle(otter_OffscreenBuffer* videoBackbuffer,
+				   Triangle2f triangle,
+				   f32 red, f32 green, f32 blue) {
 	
     u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
         | (u32)round_floatToI32(green * 255.0f) << 8
         | (u32)round_floatToI32(blue * 255.0f)  << 0;
     
+	// Order the triangles according position in the y-axis
+    Point2i point1 = Point2fToPoint2i(triangle.points[0]);
+    Point2i point2 = Point2fToPoint2i(triangle.points[1]);
+    Point2i point3 = Point2fToPoint2i(triangle.points[2]);
+	
+    if (point3.y < point2.y) {
+        SWAP(point3, point2);
+    }
+    if (point3.y < point1.y) {
+        SWAP(point3, point1);
+    }
+    if (point2.y < point1.y) {
+        SWAP(point2, point1);
+    }
+	
+	// check for the trivial cases
+	if (point2.y == point3.y) { fillFlatSideTriangle(videoBackbuffer,
+													 point1, point2, point3,
+													 colour); }
+	else if (point1.y == point2.y) { fillFlatSideTriangle(videoBackbuffer,
+														  point3, point1, point2,
+														  colour); }
+	// General case - split the triangle into two - one flat bottom and one flat top
+	else {
+		
+		Point2i tempPoint = {
+			.x = point1.x 
+				+ (i32)((f32)(point3.x - point1.x) * ((f32)(point2.y - point1.y) / (f32)(point3.y - point1.y))),
+			.y = point2.y
+		};
+		
+		// Flat Bottom
+		fillFlatSideTriangle(videoBackbuffer,
+							 point1, point2, tempPoint,
+							 colour);
+		// Flat Top
+		fillFlatSideTriangle(videoBackbuffer,
+							 point3, point2, tempPoint,
+							 colour);
+	}
+	
+}
+
+#if 0
+internal void
+otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
+                            Triangle2f triangle,
+                            f32 red, f32 green, f32 blue) {
+    
+    u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
+        | (u32)round_floatToI32(green * 255.0f) << 8
+        | (u32)round_floatToI32(blue * 255.0f)  << 0;
+    
+	// Order the triangles according position in the y-axis
+    Point2i point1 = Point2fToPoint2i(triangle.points[0]);
+    Point2i point2 = Point2fToPoint2i(triangle.points[1]);
+    Point2i point3 = Point2fToPoint2i(triangle.points[2]);
+	
     if (point3.y < point2.y) {
         SWAP(point3, point2);
     }
@@ -177,8 +308,6 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
     if (dx_2 < dy_2) { SWAP(dx_2, dy_2); swapped_2 = true; }
     i32 fault_2 = 2 * dy_2 - dx_2;
     
-	
-	
 	i32 largestDistance = point3.y - point1.y;
     
 	// iterate from the topmost y to the lowermost y
@@ -250,24 +379,20 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 		}
 	}
 #if defined(OTTER_DEBUG)
-	printf("    Point 1: %d, %d\n"
-		   "    Point 2: %d, %d\n"
-		   "    Point 3: %d, %d\n\n",
-		   point1.x , point1.y, point2.x, point2.y, point3.x, point3.y);
 	
 	for (i32 i = (i32)videoBackbuffer->width; i > 0; --i) {
 		Point2i drawpoint = { .y = point1.y, .x = i };
 		
 		otter_paintPixel(videoBackbuffer, 
 						 drawpoint,
-						 0xFF77FFFF);
+						 0xFF77FFFF); // Cyan
 	}
 	for (i32 i = (i32)videoBackbuffer->height; i > 0; --i) {
 		Point2i drawpoint = { .y = i, .x = point1.x };
 		
 		otter_paintPixel(videoBackbuffer, 
 						 drawpoint,
-						 0xFF77FFFF);
+						 0xFF77FFFF); // Cyan
 	}
 	
 	for (i32 i = (i32)videoBackbuffer->width; i > 0; --i) {
@@ -275,14 +400,14 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 		
 		otter_paintPixel(videoBackbuffer, 
 						 drawpoint,
-						 0xFFFF77FF);
+						 0xFFFF77FF); // Pink
 	}
 	for (i32 i = (i32)videoBackbuffer->height; i > 0; --i) {
 		Point2i drawpoint = { .y = i, .x = point2.x };
 		
 		otter_paintPixel(videoBackbuffer, 
 						 drawpoint,
-						 0xFFFF77FF);
+						 0xFFFF77FF); // Pink
 	}
 	
 	for (i32 i = (i32)videoBackbuffer->width; i > 0; --i) {
@@ -290,17 +415,18 @@ otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 		
 		otter_paintPixel(videoBackbuffer, 
 						 drawpoint,
-						 0xFFFFFF77);
+						 0xFFFFFF77); // Yellow
 	}
 	for (i32 i = (i32)videoBackbuffer->height; i > 0; --i) {
 		Point2i drawpoint = { .y = i, .x = point3.x };
 		
 		otter_paintPixel(videoBackbuffer, 
 						 drawpoint,
-						 0xFFFFFF77);
+						 0xFFFFFF77); // Yellow
 	}
 #endif
 }
+#endif
 
 internal void
 otter_drawCircleSimple(otter_OffscreenBuffer* videoBackbuffer,
