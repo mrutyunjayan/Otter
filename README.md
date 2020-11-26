@@ -22,7 +22,7 @@
   - - - [ ] Fill Circles
   - - [x] Render Polygons
   - - [x] Project from 3D to 2D
-  - - [ ] Normals
+  - - [x] Normals
   - - [ ] Culling
   - - [ ] Lighting
   
@@ -38,7 +38,6 @@
 - The window close events are not being handled properly -> if the game is closed with Alt + F4 or by
   clicking the close button, only the window closes and the game runs in the background. This is due
   to something wrong with my understanding of FPL and how to handle the main window callback function.
-- When a triangle outline is drawn on topped of an already filled triangle, the outline breaks
 
 ## Images
 

@@ -100,6 +100,7 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 	f32 aspectRatio = screenHeight / screenWidth;
 	f32 fovDegrees = 90.0f;
 	f32 fovRadians = 1.0f / tanf(fovDegrees * 0.5f / 180.0f * PI);
+	Vec3f camera = {0};
 	
 	Mat4x4 projection = {0};
 	projection.matrix[0][0] = aspectRatio * fovRadians;
@@ -162,46 +163,66 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 		translatedTriangle.points[1].z += 3.0f;
 		translatedTriangle.points[2].z += 3.0f;
 		
-		// Project triangles from 3D -> 2D
-		projectedTriangle.points[0] = transformVector3D(translatedTriangle.points[0],
-														&projection);
-		projectedTriangle.points[1] = transformVector3D(translatedTriangle.points[1],
-														&projection);
-		projectedTriangle.points[2] = transformVector3D(translatedTriangle.points[2],
-														&projection);
-		// Scale the  triangles into view
-		projectedTriangle.points[0].x += 1.0f;
-		projectedTriangle.points[0].y += 1.0f;
-		projectedTriangle.points[0].x *= 0.5f * (f32)screenWidth;
-		projectedTriangle.points[0].y *= 0.5f * (f32)screenHeight;
+		// Calculate Normals
+		Vec3f line1 = {
+			.x = translatedTriangle.points[1].x - translatedTriangle.points[0].x,
+			.y = translatedTriangle.points[1].y - translatedTriangle.points[0].y,
+			.z = translatedTriangle.points[1].z - translatedTriangle.points[0].z
+		};
+		Vec3f line2 = {
+			.x = translatedTriangle.points[2].x - translatedTriangle.points[0].x,
+			.y = translatedTriangle.points[2].y - translatedTriangle.points[0].y,
+			.z = translatedTriangle.points[2].z - translatedTriangle.points[0].z
+		};
+		Vec3f normal = otter_vec3fCross(line1, line2);
+		otter_vec3fNormalize(normal);
 		
-		projectedTriangle.points[1].x += 1.0f;
-		projectedTriangle.points[1].y += 1.0f;
-		projectedTriangle.points[1].x *= 0.5f * (f32)screenWidth;
-		projectedTriangle.points[1].y *= 0.5f * (f32)screenHeight;
-		
-		projectedTriangle.points[2].x += 1.0f;
-		projectedTriangle.points[2].y += 1.0f;
-		projectedTriangle.points[2].x *= 0.5f * (f32)screenWidth;
-		projectedTriangle.points[2].y *= 0.5f * (f32)screenHeight;
-		
-		Triangle2f drawTriangle = {
-			.a = {projectedTriangle.points[0].x, projectedTriangle.points[0].y },
-			.b = {projectedTriangle.points[1].x, projectedTriangle.points[1].y },
-			.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
+		Vec3f viewFromCamera = {
+			.x = translatedTriangle.points[0].x - camera.x,
+			.y = translatedTriangle.points[0].y - camera.y,
+			.z = translatedTriangle.points[0].z - camera.z
 		};
 		
-#if 1
-		otter_fillTriangle(videoBackbuffer,
-						   drawTriangle,
-						   0.5f, 0.5f, 0.5f);
-#endif
-#if 1
-		otter_drawTriangle(videoBackbuffer,
-						   drawTriangle,
-						   1.0f, 1.0f, 1.0f);
-#endif
+		if (otter_vec3fDot(normal, viewFromCamera) < 0) {
+			
+			// Project triangles from 3D -> 2D
+			projectedTriangle.points[0] = transformVector3D(translatedTriangle.points[0],
+															&projection);
+			projectedTriangle.points[1] = transformVector3D(translatedTriangle.points[1],
+															&projection);
+			projectedTriangle.points[2] = transformVector3D(translatedTriangle.points[2],
+															&projection);
+			// Scale the  triangles into view
+			projectedTriangle.points[0].x += 1.0f;
+			projectedTriangle.points[0].y += 1.0f;
+			projectedTriangle.points[0].x *= 0.5f * (f32)screenWidth;
+			projectedTriangle.points[0].y *= 0.5f * (f32)screenHeight;
+			
+			projectedTriangle.points[1].x += 1.0f;
+			projectedTriangle.points[1].y += 1.0f;
+			projectedTriangle.points[1].x *= 0.5f * (f32)screenWidth;
+			projectedTriangle.points[1].y *= 0.5f * (f32)screenHeight;
+			
+			projectedTriangle.points[2].x += 1.0f;
+			projectedTriangle.points[2].y += 1.0f;
+			projectedTriangle.points[2].x *= 0.5f * (f32)screenWidth;
+			projectedTriangle.points[2].y *= 0.5f * (f32)screenHeight;
+			
+			Triangle2f drawTriangle = {
+				.a = {projectedTriangle.points[0].x, projectedTriangle.points[0].y },
+				.b = {projectedTriangle.points[1].x, projectedTriangle.points[1].y },
+				.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
+			};
+			
+			otter_fillTriangle(videoBackbuffer,
+							   drawTriangle,
+							   0.5f, 0.5f, 0.5f);
+			otter_drawTriangle(videoBackbuffer,
+							   drawTriangle,
+							   1.0f, 0.0f, 1.0f);
+		}
 	}
 	
 	i32 end;
 }
+
