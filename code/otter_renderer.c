@@ -130,6 +130,7 @@ otter_drawTriangle(otter_OffscreenBuffer* videoBackbuffer,
                             colour,
                             point2, point3);
 }
+
 // sunshine2k.de
 internal inline void
 fillFlatSideTriangle(otter_OffscreenBuffer* videoBackbuffer,
@@ -162,11 +163,7 @@ fillFlatSideTriangle(otter_OffscreenBuffer* videoBackbuffer,
     i32 fault_2 = 2 * dy_2 - dx_2;
 	
 	i32 largestDistance = dx_1 / 2;
-	/* 
-			((point3.y - point1.y) > (point2.y - point1.y))
-			? (point3.y - point1.y) : (point2.y - point1.y);
-	 */
-    
+	
 	// iterate from the topmost y to the lowermost y
 	for (i32 i = 0; i <= largestDistance; ++i) {
 		
@@ -257,7 +254,6 @@ otter_fillTriangle(otter_OffscreenBuffer* videoBackbuffer,
 							 point3, point2, tempPoint,
 							 colour);
 	}
-	
 }
 
 #if 0

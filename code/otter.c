@@ -90,6 +90,8 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
         memory->isInitialized = true;
     }
 	
+	// https://github.com/OneLoneCoder/videos for references
+	
 	f32 screenWidth = (f32)videoBackbuffer->width;
 	f32 screenHeight = (f32)videoBackbuffer->height;
 	
@@ -189,7 +191,7 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 			.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
 		};
 		
-#if 0		
+#if 1
 		otter_fillTriangle(videoBackbuffer,
 						   drawTriangle,
 						   0.5f, 0.5f, 0.5f);
