@@ -31,7 +31,7 @@
 - The window close events are not being handled properly -> if the game is closed with Alt + F4 or by
   clicking the close button, only the window closes and the game runs in the background. This is due
   to something wrong with my understanding of FPL and how to handle the main window callback function.
-- Triangle filling algorithm is broken
+- When a triangle outline is drawn on topped of an already filled triangle, the outline breaks
 
 ## Images
 
