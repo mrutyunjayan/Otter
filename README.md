@@ -29,7 +29,10 @@
  - [ ] Asset Loading
   - - [ ] .obj files
   
+  - [ ] Hardware Rendering
+  
 - [ ] Collissions
+
 
 ## Known Issues
 - The window close events are not being handled properly -> if the game is closed with Alt + F4 or by
