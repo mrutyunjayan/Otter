@@ -23,8 +23,9 @@
   - - [x] Render Polygons
   - - [x] Project from 3D to 2D
   - - [x] Normals
-  - - [ ] Culling
+  - - [x] Culling
   - - [ ] Lighting
+  - - - [x] Basic single point light
   
  - [ ] Asset Loading
   - - [ ] .obj files
@@ -42,3 +43,4 @@
 ## Images
 
 ![Alt text](screenshots/wireframeCube.gif?raw=true "wireframeCube")
+![Alt text](screenshots/filledAndLitCube.gif?raw=true "filledAndLitCube")
