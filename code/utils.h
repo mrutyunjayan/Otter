@@ -236,4 +236,14 @@ floor_floatToI32(f32 number) {
     return (i32)(floorf(number));
 }
 
+inline internal u32
+rgbaToHex(u32 red, u32 green, u32 blue, u32 alpha) {
+	
+    u32 result = alpha << 24
+		| red << 16
+        | green << 8
+        | blue  << 0;
+    
+	return result;
+}
 #endif //UTILS_H

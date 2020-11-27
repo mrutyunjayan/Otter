@@ -113,7 +113,7 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 	Mat4x4 rotationZ = {0};
 	Mat4x4 rotationX = {0};
 	
-	time += 0.01f;
+	time += 0.02f;
 	f32 theta = time / (2.0f * PI);
 	if (time > 360.0f) { time = 0.0f; }
 	
@@ -175,15 +175,28 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 			.z = translatedTriangle.points[2].z - translatedTriangle.points[0].z
 		};
 		Vec3f normal = otter_vec3fCross(line1, line2);
-		otter_vec3fNormalize(normal);
+		otter_vec3fNormalize(&normal);
 		
 		Vec3f viewFromCamera = {
 			.x = translatedTriangle.points[0].x - camera.x,
 			.y = translatedTriangle.points[0].y - camera.y,
 			.z = translatedTriangle.points[0].z - camera.z
 		};
+		otter_vec3fNormalize(&viewFromCamera);
 		
+		// only draw the triangles if it is visible
 		if (otter_vec3fDot(normal, viewFromCamera) < 0) {
+			
+			// Illumination
+			Vec3f lightDirection = { 0.0f, 0.0f, -1.0f};
+			f32 luminence = otter_vec3fDot(normal, lightDirection);
+			u32 red = (u32)(128.0f * luminence);
+			u32 green = (u32)(128.0f * luminence);
+			u32 blue = (u32)(128.0f * luminence);
+			u32 fillColour = rgbaToHex(red, 
+									   green,
+									   blue, 
+									   255); 
 			
 			// Project triangles from 3D -> 2D
 			projectedTriangle.points[0] = transformVector3D(translatedTriangle.points[0],
@@ -213,16 +226,18 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
 				.b = {projectedTriangle.points[1].x, projectedTriangle.points[1].y },
 				.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
 			};
-			
 			otter_fillTriangle(videoBackbuffer,
 							   drawTriangle,
-							   0.5f, 0.5f, 0.5f);
+							   fillColour);
+			
+#if 1
+			u32 drawColour = rgbaToHex(0, 0, 0, 255); 
 			otter_drawTriangle(videoBackbuffer,
 							   drawTriangle,
-							   1.0f, 0.0f, 1.0f);
+							   drawColour);
+#endif
 		}
 	}
 	
 	i32 end;
 }
-

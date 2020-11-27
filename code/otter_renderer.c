@@ -110,15 +110,11 @@ otter_drawLineBresenham(otter_OffscreenBuffer* videoBackbuffer,
 internal void
 otter_drawTriangle(otter_OffscreenBuffer* videoBackbuffer,
                    Triangle2f triangle,
-                   f32 red, f32 green, f32 blue) {
+				   u32 colour) {
     
     Point2i point1 = Point2fToPoint2i(triangle.points[0]);
     Point2i point2 = Point2fToPoint2i(triangle.points[1]);
     Point2i point3 = Point2fToPoint2i(triangle.points[2]);
-    
-    u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
-        | (u32)round_floatToI32(green * 255.0f) << 8
-        | (u32)round_floatToI32(blue * 255.0f)  << 0;
     
     otter_drawLineBresenham(videoBackbuffer,
                             colour,
@@ -208,12 +204,8 @@ fillFlatSideTriangle(otter_OffscreenBuffer* videoBackbuffer,
 internal void
 otter_fillTriangle(otter_OffscreenBuffer* videoBackbuffer,
 				   Triangle2f triangle,
-				   f32 red, f32 green, f32 blue) {
+				   u32 colour) {
 	
-    u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
-        | (u32)round_floatToI32(green * 255.0f) << 8
-        | (u32)round_floatToI32(blue * 255.0f)  << 0;
-    
 	// Order the triangles according position in the y-axis
     Point2i point1 = Point2fToPoint2i(triangle.points[0]);
     Point2i point2 = Point2fToPoint2i(triangle.points[1]);
@@ -260,11 +252,7 @@ otter_fillTriangle(otter_OffscreenBuffer* videoBackbuffer,
 internal void
 otter_fillTriangleBresenham(otter_OffscreenBuffer* videoBackbuffer,
                             Triangle2f triangle,
-                            f32 red, f32 green, f32 blue) {
-    
-    u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
-        | (u32)round_floatToI32(green * 255.0f) << 8
-        | (u32)round_floatToI32(blue * 255.0f)  << 0;
+							u32 colour) {
     
 	// Order the triangles according position in the y-axis
     Point2i point1 = Point2fToPoint2i(triangle.points[0]);
@@ -428,16 +416,12 @@ internal void
 otter_drawCircleSimple(otter_OffscreenBuffer* videoBackbuffer,
 					   Point2f centre_float,
 					   f32 radius_float,
-					   f32 red, f32 green, f32 blue) {
+					   u32 colour) {
 	
 	i32 radius = round_floatToI32(radius_float);
 	Point2i centre = Point2fToPoint2i(centre_float);
 	
 	i32 x, y;
-	u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
-		| (u32)round_floatToI32(green * 255.0f) << 8
-		| (u32)round_floatToI32(blue * 255.0f)  << 0;
-	
 	
 	for (x = -radius; x <= radius; ++x) {
 		
@@ -462,7 +446,7 @@ internal void
 otter_drawCircleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 						  Point2f centre_float,
 						  f32 radius_float,
-						  f32 red, f32 green, f32 blue) {
+						  u32 colour) {
 	
 	Point2i centre = Point2fToPoint2i(centre_float);
 	i32 radius = round_floatToI32(radius_float);
@@ -470,10 +454,6 @@ otter_drawCircleBresenham(otter_OffscreenBuffer* videoBackbuffer,
 	i32 x = 0;
 	i32 y = radius;
 	i32 decider = 1 - radius;
-	
-	u32 colour = (u32)round_floatToI32(red * 255.0f) << 16
-		| (u32)round_floatToI32(green * 255.0f) << 8
-		| (u32)round_floatToI32(blue * 255.0f)  << 0;
 	
 	while (x <= y) {
 		

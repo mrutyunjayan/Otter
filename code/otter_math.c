@@ -36,18 +36,14 @@ otter_vec3fDot(Vec3f v1,
 	return result;
 }
 
-inline internal Vec3f
-otter_vec3fNormalize(Vec3f v) {
+inline internal void
+otter_vec3fNormalize(Vec3f* v) {
 	
-	f32 magnitude = sqrtf((v.x * v.x)
-						  + (v.y * v.y)
-						  + (v.z * v.z));
+	f32 magnitude = sqrtf((v->x * v->x)
+						  + (v->y * v->y)
+						  + (v->z * v->z));
 	
-	Vec3f result = {
-		.x = v.x / magnitude,
-		.y = v.y / magnitude,
-		.z = v.z / magnitude
-	};
-	
-	return result;
+	v->x = v->x / magnitude;
+	v->y = v->y / magnitude;
+	v->z = v->z / magnitude;
 }
