@@ -22,13 +22,14 @@
   - - - [ ] Fill Circles
   - - [x] Render Polygons
   - - [x] Project from 3D to 2D
+  - - [ ] Depth Buffering
   - - [x] Normals
   - - [x] Culling
   - - [ ] Lighting
   - - - [x] Basic single point light
   
  - [ ] Asset Loading
-  - - [ ] .obj files
+  - - [x] .obj files
   
   - [ ] Hardware Rendering
   
