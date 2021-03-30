@@ -7,11 +7,12 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 
 //~ TYPEDEFS
 
-typedef int8_t i8;
-typedef int16_t i16;
+typedef int8_t s8;
+typedef int16_t s16;
 typedef int32_t i32;
 typedef int64_t i64;
 
@@ -25,13 +26,15 @@ typedef unsigned int uint;
 
 typedef float f32;
 typedef double f64;
-typedef uintptr_t p64;
+typedef uintptr_t uintptr;
+typedef size_t memoryIndex;
 
 //~ MACROS
 
 #define localPersist static
 #define global static
 #define internal static
+#define readOnly const
 #define false 0
 #define true 1
 
@@ -58,176 +61,55 @@ if(!(expression)) {\
 
 #define IS_POWER_OF_2(x) ((x & (x - 1)) == 0) 
 
+#define OG_FLT_MAX FLT_MAX
+//~ STRING STUFF
+inline internal void
+og_catStrings(i64 sourceACount, char* sourceA,
+              i64 sourceBCount, char* sourceB,
+              i64 destCount, char* dest) {
+    // TODO(Jai): dest bounds checking
+    for (int i = 0; i < sourceACount; ++i) {
+        *dest++ = *sourceA++;
+    }
+    
+    for (int i = 0; i < sourceBCount; ++i) {
+        *dest++ = *sourceB++;
+    }
+    
+    *dest++ = 0;
+}
+
+inline internal int
+og_stringLength(char* string) {
+    int count = 0;
+    while (*string++) {
+        ++count;
+    }
+    return count;
+}
+
 //~------------ Dynamic Array -------------
 
 // TODO(Jai): Implement own dynamic array
 
 //~-------------Swap ----------------------
 #define SWAP(a, b) do { \
-u8 swapTemp[(sizeof(a) == sizeof(b)) ? sizeof(a) : -1]; \
-memcpy(swapTemp, &a, sizeof(a)); \
+u8 _swapTemp[(sizeof(a) == sizeof(b)) ? sizeof(a) : -1]; \
+memcpy(_swapTemp, &a, sizeof(a)); \
 memcpy(&a, &b, sizeof(a)); \
-memcpy(&b, swapTemp, sizeof(a)); \
+memcpy(&b, _swapTemp, sizeof(a)); \
 } while(0)
 
-
-//~ CUSTOM ALLOCATORS
-// http://www.gingerbill.org/series/memory-allocation-strategies/
-
-//~ Arena:
-
-typedef struct {
-	u8* buffer; // Pointer to the buffer, must point to an allocated block of 
-	//             memory on initiliazation
-	u64 bufferSize; // Size of the buffer 
-	u64 currentOffset; // The current offset to the end of the used memory, initialize to zero
-	u64 memoryBlockStart; // The previous offset, set using function, initialize to zero
-} Arena;
-
-internal p64 
-alignForward(p64 ptr,
-			 u64 align) {
-	
-	ASSERT(IS_POWER_OF_2(align));
-	
-	p64 result, a, modulo;
-	
-	result = ptr;
-	size_t size = sizeof(void*);
-	
-	//modulo = p & 7;
-	a = (p64)align;
-	modulo = result & (a - 1);
-	
-	
-	if (modulo != 0) {
-		
-		result += a - modulo;
-	}
-	
-	return result;
-}
-
-internal void*
-arena_allocAlign(Arena* arena,
-				 u64 allocation,
-				 u64 align) {
-	
-	p64 currentPtr = (p64)arena->buffer + (p64)arena->currentOffset;
-	// Calculate the offset
-	p64 offset = alignForward(currentPtr,
-							  align);
-	
-	// Change to relative offset
-	offset -= (p64)arena->buffer; 
-	
-	// Check to see if the backing memory has space left
-	if (offset + allocation < arena->bufferSize) {
-		
-		void* ptr = &arena->buffer[offset];
-		arena->memoryBlockStart = arena->currentOffset;
-		arena->currentOffset = offset + allocation;
-		
-		return ptr;
-	}
-	
-	return NULL;
-}
-
-#ifndef DEFAULT_ARENA_ALIGNMENT
-#define DEFAULT_ARENA_ALIGNMENT (2 * sizeof(void*))
-#endif
-
-// Because C doesn't allow default parameters
-internal void*
-arena_alloc(Arena* arena,
-			size_t size) {
-	
-	return arena_allocAlign(arena,
-							size,
-							DEFAULT_ARENA_ALIGNMENT);
-}
-
-internal void*
-arena_resizeAlign(Arena* arena,
-				  void* oldMemory,
-				  u64 oldSize,
-				  u64 newSize,
-				  u64 align) {
-	
-	ASSERT(IS_POWER_OF_2(align));
-	
-	if (oldMemory == NULL || oldSize == 0) {
-		
-		return arena_allocAlign(arena,
-								newSize,
-								align);
-	} else if (arena->buffer <= (u8*)oldMemory
-			   && (u8*)oldMemory < (arena->buffer + arena->bufferSize)) {
-		
-		if (arena->buffer + arena->memoryBlockStart == oldMemory) {
-			
-			arena->currentOffset = arena->memoryBlockStart + newSize;
-			if (newSize > oldSize) {
-				
-				memset(&arena->buffer[arena->currentOffset],
-					   0,
-					   (newSize - oldSize));
-			}
-			
-			return oldMemory;
-		} else {
-			
-			void* newMemory = arena_allocAlign(arena,
-											   newSize,
-											   align);
-			u64 copySize = oldSize < newSize ? oldSize : newSize;
-			memmove(newMemory,
-					oldMemory,
-					copySize);
-			
-			return newMemory;
-		}
-	} else {
-		
-		ASSERT(0 && "Memory is out of bounds of the buffer in this arena");
-		return NULL;
-	}
-}
-
-// Because C doesn't allow default parameters
-internal void*
-arena_resize(Arena* arena,
-			 void* oldMemory,
-			 u64 oldSize,
-			 u64 newSize) {
-	
-	return arena_resizeAlign(arena,
-							 oldMemory,
-							 oldSize,
-							 newSize,
-							 DEFAULT_ARENA_ALIGNMENT);
-}
-
-void
-arena_free(Arena* arena) {
-	
-	memset(&arena->buffer,
-		   0,
-		   arena->bufferSize);
-	arena->currentOffset = 0;
-	arena->memoryBlockStart = 0;
-}
 
 //~----------- Number Stuff ----------------
 // NOTE(Jai): Round up the float value to int
 inline internal i32
-round_floatToI32(f32 number) {
+og_round_floatToI32(f32 number) {
     return ((i32)(number + 0.5f));
 }
 
 inline internal i32
-truncate_floatToI32(f32 number) {
+og_truncate_floatToI32(f32 number) {
     return (i32)number;
 }
 
@@ -237,8 +119,7 @@ floor_floatToI32(f32 number) {
 }
 
 inline internal u32
-rgbaToHex(u32 red, u32 green, u32 blue, u32 alpha) {
-	
+og_rgba_to_hex(u32 red, u32 green, u32 blue, u32 alpha) {
     u32 result = alpha << 24
 		| red << 16
         | green << 8
@@ -246,4 +127,27 @@ rgbaToHex(u32 red, u32 green, u32 blue, u32 alpha) {
     
 	return result;
 }
+
+//- Truncate
+inline internal u32 
+og_truncate_safe_i64(i64 value) {
+    // TODO(Jai): Defines for maximum values (u32_t)
+    ASSERT(value <= 0xFFFFFFFF);
+    u32 result = (u32)value;
+    
+    return result;
+}
+
+// TODO(Jai): reimplement myself
+//- string to numbers
+inline internal i64
+og_strtoll(readOnly char* str, char** endPtr, i32 base) {
+    return strtoll(str, endPtr, base);
+}
+
+inline internal f32
+og_strtof(readOnly char* str, char** endPtr) {
+    return strtof(str, endPtr);
+}
+
 #endif //UTILS_H
