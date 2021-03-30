@@ -22,40 +22,24 @@ load_paths = {
 };
 
 command_list = {
- 	{ 
-		.name = "build dll",
-		.out = "*BUILD DLL*",
-		.footer_panel = true, 
-		.save_dirty_files = true,
-		.cmd = { { "build_dll.bat" , .os = "win"   },
-            { "./build.sh", .os = "linux" },
-            { "./build.sh", .os = "mac"   }, }, },
-    { 
-		.name = "build dll fullscreen",
-		.out = "*BUILD DLL*",
-		.footer_panel = false,
-		.save_dirty_files = true,
-		.cmd = { { "build_dll.bat" , .os = "win"   },
-            { "./build.sh", .os = "linux" },
-            { "./build.sh", .os = "mac"   }, }, },
 	{ 
-		.name = "build full fullscreen",
-		.out = "*FULL COMPILATION*",
+		.name = "build",
+		.out = "*COMPILATION*",
 		.footer_panel = false,
 		.save_dirty_files = true,
-		.cmd = { { "build.bat" , .os = "win"   },
-            { "./build.sh", .os = "linux" },
-            { "./build.sh", .os = "mac"   }, }, },
+		.cmd = {
+				{ "build.bat" , .os = "win"   },
+            },
+	},
 	{ 
 		.name = "debug",
-		.footer_panel = true,
+//		.footer_panel = false,
 		.save_dirty_files = false,
-		.cmd = { { "debug.bat" , .os = "win"   },
-            { "./build.sh", .os = "linux" },
-            { "./build.sh", .os = "mac"   }, }, }
+		.cmd = { 
+			{ "remedybg build\otter.rdbg" , .os = "win"   },
+		},
+	},
 };
 
-fkey_command[1] = "build dll";
-fkey_command[2] = "build dll fullscreen";
-fkey_command[3] = "build full fullscreen";
+fkey_command[1] = "build";
 fkey_command[5] = "debug";

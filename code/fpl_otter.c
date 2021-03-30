@@ -77,14 +77,115 @@ internal inline i32
 fpl_handleError() {
     
     fplPlatformResultType initResult = fplGetPlatformResult();
-    const char *initResultStr = fplGetPlatformResultTypeString(initResult);
-    const char *errStr = fplGetLastError();
+    const char* initResultStr = fplGetPlatformResultTypeString(initResult);
+    const char* errStr = fplGetLastError();
     fplConsoleFormatError("FPL-ERROR[%s]: %s\n", initResultStr, errStr);
     
     return -1;
 }
 
+//*************************************************************************
+// ------------------FILE I/O--------------------------------------
+//*************************************************************************
+
+// void platform_file_freeMemory(ThreadContext* thread, void* memory)
+PLATFORM_FILE_FREE_MEMORY(platform_file_freeMemory) {
+    
+	if (memory) {
+        VirtualFree(memory, 0,MEM_RELEASE);
+    }
+}
+
+// FileReadResult platform_file_readEntire(ThreadContext* thread,
+//                                         char* fileName)
+PLATFORM_FILE_READ_ENTIRE(platform_file_readEntire) {
+    
+    FileReadResult result = {0};
+    
+    HANDLE fileHandle = CreateFileA(fileName,
+                                    GENERIC_READ,
+                                    FILE_SHARE_READ,
+                                    NULL,
+                                    OPEN_EXISTING,
+                                    FILE_ATTRIBUTE_NORMAL,
+                                    NULL);
+    
+    if (fileHandle != INVALID_HANDLE_VALUE) {
+        
+        LARGE_INTEGER fileSize;
+        if (GetFileSizeEx(fileHandle,
+                          &fileSize)) {
+            
+            u32 fileSize32 = safeTruncate_i64(fileSize.QuadPart);
+            result.contents = VirtualAlloc(0,
+                                           fileSize32,
+                                           MEM_RESERVE | MEM_COMMIT,
+                                           PAGE_READWRITE);
+            if (result.contents) {
+                
+                DWORD bytesRead;
+                if ((ReadFile(fileHandle,
+                              result.contents,
+                              fileSize32,
+                              &bytesRead,
+                              NULL) && (fileSize32 == bytesRead))) {
+                    // NOTE(Jai): File read successfully
+                    
+                    result.contentSize = fileSize32;
+                } else {
+                    DEBUG_platform_freeFileMemory(thread, result.contents);
+                    result.contents = 0;
+                } 
+            } else {
+                // TODO(Jai): logging
+            }
+        } else {
+            // TODO(Jai): logging
+        }
+        CloseHandle(fileHandle);
+    } else {
+        // TODO(Jai): logging
+    }
+    return result;
+}
+
+// b32 platform_file_writeEntire(ThreadContext* thread, char* fileName,
+//                               u32 memorySize, void* memory)
+PLATFORM_FILE_WRITE_ENTIRE(platform_file_writeEntire) {
+    
+	b32 result = false;
+    
+    HANDLE fileHandle = CreateFileA(fileName,
+                                    GENERIC_WRITE,
+                                    0,
+                                    NULL,
+                                    CREATE_ALWAYS,
+                                    FILE_ATTRIBUTE_NORMAL,
+                                    NULL);
+    if (fileHandle != INVALID_HANDLE_VALUE) {
+        
+        DWORD bytesWritten;
+        if (WriteFile(fileHandle,
+                      memory,
+                      memorySize,
+                      &bytesWritten,
+                      NULL)) {
+            
+            // NOTE(Jai): File wrote to successfully
+            result = (bytesWritten == memorySize);
+        } else {
+            // TODO(Jai): logging
+        } 
+        
+        CloseHandle(fileHandle);
+    } else {
+        // TODO(Jai): logging
+    }
+    
+    return result;
+}
 #endif
+
 //~
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch-enum"
@@ -266,15 +367,15 @@ main(int argc, char** argv) {
 		.bufferSize = totalMemorySize
 	};
 	
-    arena_alloc(&arena,
-				otter_memory.persistentStorageSize);
+    og_arena_alloc(&arena,
+                   otter_memory.persistentStorageSize);
 	otter_memory.persistentStorage = &arena.buffer[arena.memoryBlockStart];
-    arena_alloc(&arena,
-				otter_memory.transientStorageSize);
+    og_arena_alloc(&arena,
+                   otter_memory.transientStorageSize);
 	otter_memory.transientStorage = &arena.buffer[arena.memoryBlockStart];
 	
     global_videoBackbufferPtr = fplGetVideoBackbuffer();
-    otter_OffscreenBuffer otter_videoBackbuffer = {
+    og_OffscreenBuffer otter_videoBackbuffer = {
         .pixels = global_videoBackbufferPtr->pixels, 
         .width = global_videoBackbufferPtr->width,
         .height = global_videoBackbufferPtr->height,
@@ -350,12 +451,13 @@ main(int argc, char** argv) {
             if(game.updateAndRender) {
                 otter_videoBackbuffer.width = global_videoBackbufferPtr->width;
 				otter_videoBackbuffer.height = global_videoBackbufferPtr->height;
-				otter_videoBackbuffer.pitch =(u32)(global_videoBackbufferPtr->lineWidth);
+				otter_videoBackbuffer.pitch = (u32)(global_videoBackbufferPtr->lineWidth);
 				otter_videoBackbuffer.pixels = global_videoBackbufferPtr->pixels; 
 				otter_videoBackbuffer.aspectRatio = 
 					otter_videoBackbuffer.height / otter_videoBackbuffer.width;
 				
-				game.updateAndRender(&otter_memory, 
+				game.updateAndRender(&thread,
+                                     &otter_memory, 
 									 &otter_videoBackbuffer);
 			}
 			
@@ -364,8 +466,8 @@ main(int argc, char** argv) {
 	} else {
 		
 		fplPlatformResultType initResult = fplGetPlatformResult();
-		const char *initResultStr = fplGetPlatformResultTypeString(initResult);
-		const char *errStr = fplGetLastError();
+		const char* initResultStr = fplGetPlatformResultTypeString(initResult);
+		const char* errStr = fplGetLastError();
 		fplConsoleFormatError("FPL-ERROR[%s]: %s\n", initResultStr, errStr);
 		
 		return -1;

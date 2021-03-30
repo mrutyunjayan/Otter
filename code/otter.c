@@ -1,243 +1,225 @@
 #include "otter_platform.h"
 
-#include "otter_math.c"
-#include "otter_renderer.c"
+#include "otter_math.h"
+#include "otter_renderer.h"
+#include "otter_file.h"
 
 global f32 time;
 
-//void
-//otter_updateAndRender(otter_Memory* memory,
-//                      otter_OffscreenBuffer* videoBackbuffer) 
+#if 0
+void
+otterUpdateAndRender(otter_Memory* memory,
+                     og_OffscreenBuffer* videoBackbuffer);
+#endif
 OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
-    
     otter_GameState* gameState = (otter_GameState*)memory->persistentStorage;
-	gameState->assetData = gameState + sizeof(otter_GameState);
-    Mesh* meshCube = (Mesh*)gameState->assetData;
-	
-	
-	// NOTE(Jai): Using dynamic array for faster protyping for now
-	// TODO(Jai): Get rid of dynamic array and switch to using the arena for asset data
+    // TODO(Jai): move away from using localPersist
+    localPersist Mesh mesh;
+    localPersist f32 depthBuffer[1080 * 1920];
 	if (!memory->isInitialized) {
-        //Generate Cube
-        //SOUTH
-        {
-            Triangle3f triTemp = { 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f};
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        {
-            Triangle3f triTemp = { 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        //EAST
-        {
-            Triangle3f triTemp = { 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        {
-            Triangle3f triTemp = { 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        //NORTH
-        {
-            Triangle3f triTemp ={ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        {
-            Triangle3f triTemp = { 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        //WEST
-        {
-            Triangle3f triTemp = { 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        {
-            Triangle3f triTemp = { 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        //TOP
-        {
-            Triangle3f triTemp = { 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        {
-            Triangle3f triTemp = { 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        //BOTTOM
-        {
-            Triangle3f triTemp = { 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
-        
-        {
-            Triangle3f triTemp = { 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f };
-            sb_push(meshCube->triangles, triTemp);
-        }
+        // STUDY(Jai): Why there is a difference in the allocation address when viwed in the debugger, vs sizeof below
+        og_arena_initialize(&gameState->worldArena,
+                            ((u8*)memory->persistentStorage + sizeof(otter_GameState)),
+                            (memory->persistentStorageSize - sizeof(otter_GameState)));
+        og_arena_initialize(&gameState->scratch,
+                            memory->transientStorage,
+                            memory->transientStorageSize);
+        og_file_load_objMesh(thread,
+                             &gameState->scratch,
+                             &gameState->worldArena,
+                             &mesh,
+                             
+                             memory->fileReadFull,
+                             "../data/WeirdAssCat.obj");
         
 		time = 0;
-		
+        
+        for (int i = 0; i < (1920 * 1080); ++i) {
+            depthBuffer[i] = OG_FLT_MAX;
+        }
+        
         memory->isInitialized = true;
     }
-	
-	// https://github.com/OneLoneCoder/videos for references
-	
-	f32 screenWidth = (f32)videoBackbuffer->width;
-	f32 screenHeight = (f32)videoBackbuffer->height;
-	
+    
+    //~ // NOTE(Jai): REFERNCES
+	//- https://github.com/OneLoneCoder/videos
+    //- https://www.gabrielgambetta.com/computer-graphics-from-scratch/
+    
+	f32 screenWidth = (f32)videoBuffer->width;
+	f32 screenHeight = (f32)videoBuffer->height;
+    
 	f32 near = 0.1f;
 	f32 far = 1000.0f;
 	f32 aspectRatio = screenHeight / screenWidth;
 	f32 fovDegrees = 90.0f;
 	f32 fovRadians = 1.0f / tanf(fovDegrees * 0.5f / 180.0f * PI);
-	Vec3f camera = {0};
-	
-	Mat4x4 projection = {0};
-	projection.matrix[0][0] = aspectRatio * fovRadians;
-	projection.matrix[1][1] = fovRadians;
-	projection.matrix[3][2] = far / (far - near);
-	projection.matrix[2][3] = 1.0f;
-	projection.matrix[3][3] = 0.0f;
-	
-	// Rotation Matrices
-	Mat4x4 rotationZ = {0};
-	Mat4x4 rotationX = {0};
-	
-	time += 0.02f;
+	V3f camera = {0};
+    
+    /*
+// NOTE(Jai): The Projection Matrix Strucure
+               .              0                 1            2                 3
+0 |(aspectRatio * fovRadians) ........... .................. ..... |
+1 |.........................  fovRadians  .................. ..... |
+2 |........................ .............         q            1.0 |
+ 3 |........................ .............    (-near * q)     ..... |
+
+.      where, q = far / (far - near)
+*/
+    f32 q = far / (far - near);
+	Mat4D projection = {
+        .matrix[0][0] = aspectRatio * fovRadians,
+        .matrix[1][1] = fovRadians,
+        .matrix[2][2] = q,
+        .matrix[2][3] = 1.0f,
+        .matrix[3][2] = -near * q,
+    };
+    
+	time += 0.005f;
 	f32 theta = time / (2.0f * PI);
 	if (time > 360.0f) { time = 0.0f; }
-	
+    
+	// Rotation Matrices
 	// Rotation Z
-	rotationZ.matrix[0][0] = cosf(theta);
-	rotationZ.matrix[0][1] = sinf(theta);
-	rotationZ.matrix[1][0] = -sinf(theta);
-	rotationZ.matrix[1][1] = cosf(theta);
-	rotationZ.matrix[2][2] = 1;
-	rotationZ.matrix[3][3] = 1;
-	
+	Mat4D rotationZ = {
+        .matrix[0][0] = cosf(theta),
+        .matrix[0][1] = sinf(theta),
+        .matrix[1][0] = -sinf(theta),
+        .matrix[1][1] = cosf(theta),
+        .matrix[2][2] = 1,
+        .matrix[3][3] = 1,
+    };
 	// Rotation X
-	rotationX.matrix[0][0] = 1;
-	rotationX.matrix[1][1] = cosf(theta * 0.5f);
-	rotationX.matrix[1][2] = sinf(theta * 0.5f);
-	rotationX.matrix[2][1] = -sinf(theta * 0.5f);
-	rotationX.matrix[2][2] = cosf(theta * 0.5f);
-	rotationX.matrix[3][3] = 1;
-	
+	Mat4D rotationX = {
+        .matrix[0][0] = 1,
+        .matrix[1][1] = cosf(theta * 0.5f),
+        .matrix[1][2] = sinf(theta * 0.5f),
+        .matrix[2][1] = -sinf(theta * 0.5f),
+        .matrix[2][2] = cosf(theta * 0.5f),
+        .matrix[3][3] = 1,
+    };
+    
+    Mat4D  awayFromCamera = {
+        .matrix[0][0] = 1.0f,
+        .matrix[1][1] = 1.0f,
+        .matrix[2][2] = 1.0f,
+        .matrix[3][2] = 10.0f,
+        .matrix[3][3] = 10.0f,
+    };
+    
+    Mat4D translateByOne = {
+        .matrix[0][0] = 1.0f,
+        .matrix[1][1] = 1.0f,
+        .matrix[2][2] = 1.0f,
+        .matrix[3][0] = 1.0f,
+        .matrix[3][1] = 1.0f,
+        .matrix[3][3] = 1.0f,
+    };
+    
+    Mat4D scaling = {
+        .matrix[0][0] = (0.5f * screenWidth),
+        .matrix[1][1] = (0.5f * screenHeight),
+        .matrix[2][2] = 1.0f,
+        .matrix[3][3] = 1.0f,
+    };
+    
 	// Draw the triangles
-	for (u32 i = 0; i < 12; ++i) {
-		
-		Triangle3f projectedTriangle = {0};
-		Triangle3f translatedTriangle = {0};
-		Triangle3f rotatedTriangleZ = {0};
-		Triangle3f rotatedTriangleZX = {0};
-		
+	for (memoryIndex i = 0; i < mesh.triangleCount; ++i) {
+		Triangle3f transformedTriangle = mesh.triangles[i];
+        
 		// Rotate Z
-		rotatedTriangleZ.points[0] = transformVector3D(meshCube->triangles[i].points[0],
-													   &rotationZ);
-		rotatedTriangleZ.points[1] = transformVector3D(meshCube->triangles[i].points[1],
-													   &rotationZ);
-		rotatedTriangleZ.points[2] = transformVector3D(meshCube->triangles[i].points[2],
-													   &rotationZ);
-		
+        og_triangle_transform(&transformedTriangle, &rotationZ);
+        
 		// Rotate X
-		rotatedTriangleZX.points[0] = transformVector3D(rotatedTriangleZ.points[0],
-														&rotationX);
-		rotatedTriangleZX.points[1] = transformVector3D(rotatedTriangleZ.points[1],
-														&rotationX);
-		rotatedTriangleZX.points[2] = transformVector3D(rotatedTriangleZ.points[2],
-														&rotationX);
-		
+        og_triangle_transform(&transformedTriangle, &rotationX);
+        
 		// Translate the triagle in z, away from the camera
-		translatedTriangle = rotatedTriangleZX;
-		translatedTriangle.points[0].z += 3.0f;
-		translatedTriangle.points[1].z += 3.0f;
-		translatedTriangle.points[2].z += 3.0f;
-		
+        og_triangle_transform(&transformedTriangle, &awayFromCamera);
+        
 		// Calculate Normals
-		Vec3f line1 = {
-			.x = translatedTriangle.points[1].x - translatedTriangle.points[0].x,
-			.y = translatedTriangle.points[1].y - translatedTriangle.points[0].y,
-			.z = translatedTriangle.points[1].z - translatedTriangle.points[0].z
+		V3f line1 = {
+			.x = transformedTriangle.points[1].x - transformedTriangle.points[0].x,
+			.y = transformedTriangle.points[1].y - transformedTriangle.points[0].y,
+			.z = transformedTriangle.points[1].z - transformedTriangle.points[0].z
 		};
-		Vec3f line2 = {
-			.x = translatedTriangle.points[2].x - translatedTriangle.points[0].x,
-			.y = translatedTriangle.points[2].y - translatedTriangle.points[0].y,
-			.z = translatedTriangle.points[2].z - translatedTriangle.points[0].z
+		V3f line2 = {
+			.x = transformedTriangle.points[2].x - transformedTriangle.points[0].x,
+			.y = transformedTriangle.points[2].y - transformedTriangle.points[0].y,
+			.z = transformedTriangle.points[2].z - transformedTriangle.points[0].z
 		};
-		Vec3f normal = otter_vec3fCross(line1, line2);
-		otter_vec3fNormalize(&normal);
-		
-		Vec3f viewFromCamera = {
-			.x = translatedTriangle.points[0].x - camera.x,
-			.y = translatedTriangle.points[0].y - camera.y,
-			.z = translatedTriangle.points[0].z - camera.z
+		V3f normal = og_v3f_cross(line1, line2);
+		og_v3f_normalize(&normal);
+        
+		V3f viewFromCamera = {
+			.x = transformedTriangle.points[0].x - camera.x,
+			.y = transformedTriangle.points[0].y - camera.y,
+			.z = transformedTriangle.points[0].z - camera.z
 		};
-		otter_vec3fNormalize(&viewFromCamera);
-		
+		og_v3f_normalize(&viewFromCamera);
+        
 		// only draw the triangles if it is visible
-		if (otter_vec3fDot(normal, viewFromCamera) < 0) {
-			
+		if (og_v3f_dot(normal, viewFromCamera) < 0) {
 			// Illumination
-			Vec3f lightDirection = { 0.0f, 0.0f, -1.0f};
-			f32 luminence = otter_vec3fDot(normal, lightDirection);
+			V3f lightDirection = { 0.0f, 0.0f, -1.0f};
+			f32 luminence = og_v3f_dot(normal, lightDirection);
 			u32 red = (u32)(128.0f * luminence);
 			u32 green = (u32)(128.0f * luminence);
 			u32 blue = (u32)(128.0f * luminence);
-			u32 fillColour = rgbaToHex(red, 
-									   green,
-									   blue, 
-									   255); 
-			
-			// Project triangles from 3D -> 2D
-			projectedTriangle.points[0] = transformVector3D(translatedTriangle.points[0],
-															&projection);
-			projectedTriangle.points[1] = transformVector3D(translatedTriangle.points[1],
-															&projection);
-			projectedTriangle.points[2] = transformVector3D(translatedTriangle.points[2],
-															&projection);
+			u32 fillColour = og_rgba_to_hex(red,
+                                            green,
+                                            blue,
+                                            255);
+            
+            f32 triangleZValues[3];
+            triangleZValues[0] = transformedTriangle.a.z;
+            triangleZValues[1] = transformedTriangle.b.z;
+            triangleZValues[2] = transformedTriangle.c.z;
+            
+            // Project the triangle from 3D -> 2D
+            og_triangle_transform(&transformedTriangle, &projection);
+            
+            // Shift the coordiantes from (-1 to +1) to (0 to 2)
+            og_triangle_transform(&transformedTriangle, &translateByOne);
+            
 			// Scale the  triangles into view
-			projectedTriangle.points[0].x += 1.0f;
-			projectedTriangle.points[0].y += 1.0f;
-			projectedTriangle.points[0].x *= 0.5f * (f32)screenWidth;
-			projectedTriangle.points[0].y *= 0.5f * (f32)screenHeight;
-			
-			projectedTriangle.points[1].x += 1.0f;
-			projectedTriangle.points[1].y += 1.0f;
-			projectedTriangle.points[1].x *= 0.5f * (f32)screenWidth;
-			projectedTriangle.points[1].y *= 0.5f * (f32)screenHeight;
-			
-			projectedTriangle.points[2].x += 1.0f;
-			projectedTriangle.points[2].y += 1.0f;
-			projectedTriangle.points[2].x *= 0.5f * (f32)screenWidth;
-			projectedTriangle.points[2].y *= 0.5f * (f32)screenHeight;
-			
+            og_triangle_transform(&transformedTriangle, &scaling);
+            
 			Triangle2f drawTriangle = {
-				.a = {projectedTriangle.points[0].x, projectedTriangle.points[0].y },
-				.b = {projectedTriangle.points[1].x, projectedTriangle.points[1].y },
-				.c = {projectedTriangle.points[2].x, projectedTriangle.points[2].y },
+				.a = {transformedTriangle.points[0].x, transformedTriangle.points[0].y },
+				.b = {transformedTriangle.points[1].x, transformedTriangle.points[1].y },
+				.c = {transformedTriangle.points[2].x, transformedTriangle.points[2].y },
 			};
-			otter_fillTriangle(videoBackbuffer,
-							   drawTriangle,
-							   fillColour);
-			
-#if 1
-			u32 drawColour = rgbaToHex(0, 0, 0, 255); 
-			otter_drawTriangle(videoBackbuffer,
-							   drawTriangle,
-							   drawColour);
+            
+            Triangle3f drawTriangle3D = {
+				.a = {transformedTriangle.points[0].x, transformedTriangle.points[0].y, triangleZValues[0] },
+				.b = {transformedTriangle.points[1].x, transformedTriangle.points[1].y, triangleZValues[1] },
+				.c = {transformedTriangle.points[2].x, transformedTriangle.points[2].y, triangleZValues[2] },
+			};
+            
+            f32 zTestF = 500.0f;
+            zTestF *= 1024.0f;
+            i32 zTest = og_round_floatToI32(zTestF);
+            
+            P3i testPoint1 = { .z = zTest };
+            P3i testPoint = {0};
+            
+            og_renderer_draw_line_depthBuffered(videoBuffer,
+                                                &depthBuffer[0],
+                                                testPoint1, testPoint,
+                                                0);
+            
+            og_renderer_fill_triangle(videoBuffer,
+                                      drawTriangle,
+                                      fillColour);
+            
+#if 0
+			u32 drawColour = og_rgba_to_hex(0, 0, 0, 255);
+			og_renderer_draw_triangle(videoBuffer,
+                                      drawTriangle,
+                                      drawColour);
 #endif
 		}
 	}
-	
+    
+    og_arena_free(&gameState->scratch);
 	i32 end;
 }
