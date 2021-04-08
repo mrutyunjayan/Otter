@@ -37,9 +37,9 @@
 
 
 ## Known Issues
-- The window close events are not being handled properly -> if the game is closed with Alt + F4 or by
-  clicking the close button, only the window closes and the game runs in the background. This is due
-  to something wrong with my understanding of FPL and how to handle the main window callback function.
+- The edges of the triangle are not rendered properly
+- The lighting is temporary/unfinished
+- The zBuffering breaks sometimes
 
 ## Images
 
