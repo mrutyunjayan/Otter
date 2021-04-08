@@ -1,0 +1,7 @@
+[
+    {
+        "directory": "D:/Programming/Games/Otter",
+        "command": "clang-cl -Iinclude/ -DOTTER_DEBUG=1 -DOTTER_INTERNAL=1 code/win32_otter.c -Fegame",
+        "file": "win32_otter.c"
+    }
+]

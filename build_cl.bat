@@ -1,6 +1,8 @@
 @echo off
 
-call "J:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64 >nul
+IF NOT DEFINED DevEnvDir (
+	call "N:\VS\2019\VC\Auxiliary\Build\vcvars64.bat" >nul
+)
 
 IF NOT EXIST build mkdir build
 
@@ -45,7 +47,7 @@ set libs=^
 	Gdi32.lib^
 	Winmm.lib
 
-set linker_flags= -incremental:no -opt:ref 
+set linker_flags= -incremental:no -opt:ref
 
 set dll_flags= ^
 	%linker_flags%^

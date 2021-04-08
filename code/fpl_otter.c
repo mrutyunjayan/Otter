@@ -61,8 +61,12 @@ win32_loadGameCode(char* sourceLibraryName,
 }
 
 internal void
+<<<<<<< HEAD
+win32_unloadGameCode(win32_GameCode* gameCode) {    
+=======
 win32_unloadGameCode(win32_GameCode* gameCode) {
     
+>>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
     if (gameCode->gameLibrary) {
         
         FreeLibrary(gameCode->gameLibrary);

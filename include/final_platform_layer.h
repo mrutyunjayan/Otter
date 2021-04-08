@@ -15103,7 +15103,7 @@ fpl_internal bool fpl__X11InitWindow(const fplSettings *initSettings, fplWindowS
 		EnterWindowMask | LeaveWindowMask | PropertyChangeMask |
 		KeyPressMask | KeyReleaseMask |
 		ButtonPressMask | ButtonReleaseMask | PointerMotionMask | ButtonMotionMask;
-	swa.background_pixel = BlackPixel(windowState->display, windowState->screen);
+	swa.backgog_round_pixel = BlackPixel(windowState->display, windowState->screen);
 	swa.border_pixel = WhitePixel(windowState->display, windowState->screen);
 	swa.bit_gravity = NorthWestGravity;
 	swa.win_gravity = NorthWestGravity;

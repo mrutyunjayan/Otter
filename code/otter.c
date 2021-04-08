@@ -15,7 +15,11 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
     otter_GameState* gameState = (otter_GameState*)memory->persistentStorage;
     // TODO(Jai): move away from using localPersist
     localPersist Mesh mesh;
+<<<<<<< HEAD
+    localPersist i32 depthBuffer[1080 * 1920];
+=======
     localPersist f32 depthBuffer[1080 * 1920];
+>>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
 	if (!memory->isInitialized) {
         // STUDY(Jai): Why there is a difference in the allocation address when viwed in the debugger, vs sizeof below
         og_arena_initialize(&gameState->worldArena,
@@ -30,6 +34,11 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
                              &mesh,
                              
                              memory->fileReadFull,
+<<<<<<< HEAD
+                             "../data/WeirdAssCat.obj");        
+		time = 0;
+        
+=======
                              "../data/WeirdAssCat.obj");
         
 		time = 0;
@@ -38,13 +47,20 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
             depthBuffer[i] = OG_FLT_MAX;
         }
         
+>>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
         memory->isInitialized = true;
     }
     
     //~ // NOTE(Jai): REFERNCES
 	//- https://github.com/OneLoneCoder/videos
     //- https://www.gabrielgambetta.com/computer-graphics-from-scratch/
+<<<<<<< HEAD
+    for (int i = 0; i < (1920 * 1080); ++i) {
+        depthBuffer[i] = OG_INT_MAX;
+    } 
+=======
     
+>>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
 	f32 screenWidth = (f32)videoBuffer->width;
 	f32 screenHeight = (f32)videoBuffer->height;
     
@@ -74,7 +90,11 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
         .matrix[3][2] = -near * q,
     };
     
+<<<<<<< HEAD
+	time += 0.009f;
+=======
 	time += 0.005f;
+>>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
 	f32 theta = time / (2.0f * PI);
 	if (time > 360.0f) { time = 0.0f; }
     
@@ -202,6 +222,22 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
             P3i testPoint1 = { .z = zTest };
             P3i testPoint = {0};
             
+<<<<<<< HEAD
+#if 0            
+            og_renderer_fill_triangle(videoBuffer,
+                                      drawTriangle,
+                                      fillColour);
+#else
+            og_renderer_fill_triangle_3D(videoBuffer,
+                                         drawTriangle3D,
+                                         &depthBuffer[0],
+                                         fillColour);
+#endif
+            
+#if 0
+			
+            u32 drawColour = og_rgba_to_hex(0, 0, 0, 255);
+=======
             og_renderer_draw_line_depthBuffered(videoBuffer,
                                                 &depthBuffer[0],
                                                 testPoint1, testPoint,
@@ -213,6 +249,7 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
             
 #if 0
 			u32 drawColour = og_rgba_to_hex(0, 0, 0, 255);
+>>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
 			og_renderer_draw_triangle(videoBuffer,
                                       drawTriangle,
                                       drawColour);
