@@ -45,3 +45,4 @@
 
 ![Alt text](screenshots/wireframeCube.gif?raw=true "wireframeCube")
 ![Alt text](screenshots/filledAndLitCube.gif?raw=true "filledAndLitCube")
+![Alt text](screenshots/filledAndLitCube.gif?raw=true "zBufferedObjFile")
