@@ -62,6 +62,7 @@ if(!(expression)) {\
 #define IS_POWER_OF_2(x) ((x & (x - 1)) == 0) 
 
 #define OG_FLT_MAX FLT_MAX
+#define OG_INT_MAX INT_MAX
 //~ STRING STUFF
 inline internal void
 og_catStrings(i64 sourceACount, char* sourceA,

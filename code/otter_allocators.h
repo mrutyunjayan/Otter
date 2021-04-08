@@ -108,8 +108,7 @@ og_arena_resizeAlign(Arena* arena,
 			
 			return newMemory;
 		}
-	} else {
-		
+	} else {	
 		ASSERT(0 && "Memory is out of bounds of the buffer in this arena");
 		return NULL;
 	}

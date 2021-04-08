@@ -27,5 +27,4 @@ typedef struct otter_GameState {
     Arena worldArena;
 } otter_GameState;
 
-
 #endif //OTTER_H
