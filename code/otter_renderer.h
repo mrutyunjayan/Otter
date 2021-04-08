@@ -3,10 +3,7 @@
 
 #include "otter.h"
 #include "otter_math.h"
-<<<<<<< HEAD
 #include "utils.h"
-=======
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
 
 #if defined(OTTER_DEBUG)
 #include "stdio.h"
@@ -50,7 +47,6 @@ og_renderer_paintPixel(og_OffscreenBuffer* videoBackbuffer,
     }
 }
 
-<<<<<<< HEAD
 // NOTE(Jai): Similar to the bresenham function below,
 // but implemented in 3D and more specific to be used with
 // the 3D triangle drawing function
@@ -59,12 +55,6 @@ og_renderer_draw_line_depthBuffered(og_OffscreenBuffer* videoBackbuffer,
                                     i32* depthBuffer,
                                     P3i a, P3i b,
                                     i32 imageWidth,
-=======
-internal void
-og_renderer_draw_line_depthBuffered(og_OffscreenBuffer* videoBackbuffer,
-                                    f32* depthBuffer,
-                                    P3i a, P3i b,
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
                                     u32 colour) {
     i32 dx = 2 * (b.x - a.x);
     i32 dxSign = (dx < 0) ? -1 : 1;
@@ -74,7 +64,6 @@ og_renderer_draw_line_depthBuffered(og_OffscreenBuffer* videoBackbuffer,
     i32 dySign = (dy < 0) ? -1 : 1;
     dy *= dySign;
     
-<<<<<<< HEAD
     // NOTE(Jai): Assumes that the passed in z-values are zoomed in by a
     // factor of 1024
     i32 dzZoomedIn = 2 * (b.z - a.z);
@@ -167,16 +156,7 @@ og_renderer_draw_line_depthBuffered(og_OffscreenBuffer* videoBackbuffer,
             }
         }
     }
-=======
-    i32 dzZoomedIn = 2 * (b.z - a.z);
-    i32 dzZoomedInSign = (dzZoomedIn < 0) ? -1 : 1;
-    dzZoomedIn *= dzZoomedInSign;
-    i32 dz = dzZoomedIn >> 10;
     
-    P2i drawPoint = { a.x, a.y };
-    
-    
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
 }
 
 internal void
@@ -186,10 +166,6 @@ og_renderer_draw_line_bresenham(og_OffscreenBuffer* videoBackbuffer,
     i32 dx = 2 * (b.x - a.x);
     i32 dxSign = (dx < 0) ? -1 : 1;
     dx *= dxSign;
-<<<<<<< HEAD
-=======
-    
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
     i32 dy = 2 * (b.y - a.y);
     i32 dySign = (dy < 0) ? -1 : 1;
     dy *= dySign;
@@ -207,10 +183,6 @@ og_renderer_draw_line_bresenham(og_OffscreenBuffer* videoBackbuffer,
                 if (drawPoint.y == b.y) { break; }
             }
             drawPoint.x += dxSign;
-<<<<<<< HEAD
-=======
-            
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
             fault -= dy;
             if (fault < 0) {
                 drawPoint.y += dySign;
@@ -227,13 +199,7 @@ og_renderer_draw_line_bresenham(og_OffscreenBuffer* videoBackbuffer,
             if (drawPoint.x == b.x) {
                 if (drawPoint.y == b.y) { break; }
             }
-<<<<<<< HEAD
             drawPoint.y += dySign;
-=======
-            
-            drawPoint.y += dySign;
-            
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
             fault -= dx;
             if (fault < 0) {
                 drawPoint.x += dxSign;
@@ -337,158 +303,150 @@ og_renderer_fill_triangle_flatside(og_OffscreenBuffer* videoBackbuffer,
                                    P2i point1, P2i point2, P2i point3,
                                    u32 colour) {
     P2i drawPoint_1 = point1;
-	P2i drawPoint_2 = point1;
+    P2i drawPoint_2 = point1;
     
-	// first edge
-	i32 dx_1 = 2 * (point3.x - point1.x);
+    // first edge
+    i32 dx_1 = 2 * (point3.x - point1.x);
     i32 dxSign_1 = (dx_1 < 0) ? -1 : 1;
     dx_1 *= dxSign_1;
     i32 dy_1 = 2 * (point3.y - point1.y);
-	i32 dySign_1 = (dy_1 < 0) ? -1 : 1;
+    i32 dySign_1 = (dy_1 < 0) ? -1 : 1;
     dy_1 *= dySign_1;
     b32 swapped_1 = false;
     if (dx_1 < dy_1) { SWAP(dx_1, dy_1); swapped_1 = true; }
     i32 fault_1 = 2 * dy_1 - dx_1;
     
-	// second edge
+    // second edge
     i32 dx_2 = 2 * (point2.x - point1.x);
     i32 dxSign_2 = (dx_2 < 0) ? -1 : 1;
     dx_2 *= dxSign_2;
     i32 dy_2 = 2 * (point2.y - point1.y);
-	i32 dySign_2 = (dy_2 < 0) ? -1 : 1;
+    i32 dySign_2 = (dy_2 < 0) ? -1 : 1;
     dy_2 *= dySign_2;
-	b32 swapped_2 = false;
+    b32 swapped_2 = false;
     if (dx_2 < dy_2) { SWAP(dx_2, dy_2); swapped_2 = true; }
     i32 fault_2 = 2 * dy_2 - dx_2;
     
-	i32 largestDistance = dx_1 / 2;
+    i32 largestDistance = dx_1 / 2;
     
-	// iterate from the topmost y to the lowermost y
-	for (i32 i = 0; i <= largestDistance; ++i) {
-		//draw a line between the two drawpoints
-		og_renderer_draw_line_bresenham(videoBackbuffer,
+    // iterate from the topmost y to the lowermost y
+    for (i32 i = 0; i <= largestDistance; ++i) {
+        //draw a line between the two drawpoints
+        og_renderer_draw_line_bresenham(videoBackbuffer,
                                         colour,
                                         drawPoint_1, drawPoint_2);
         
-		// trace the first edge till we move once in y
-		// TODO(Jai): Fix case where dx_1 = 0
+        // trace the first edge till we move once in y
+        // TODO(Jai): Fix case where dx_1 = 0
         while (fault_1 > 0) {
-			if (swapped_1) { drawPoint_1.x += dxSign_1; }
-			else { drawPoint_1.y += dySign_2; }
+            if (swapped_1) { drawPoint_1.x += dxSign_1; }
+            else { drawPoint_1.y += dySign_2; }
             
-			fault_1 -= 2 * dx_1;
-		}
+            fault_1 -= 2 * dx_1;
+        }
         
-		if (swapped_1) { drawPoint_1.y += dySign_1; }
-		else { drawPoint_1.x += dxSign_1; }
+        if (swapped_1) { drawPoint_1.y += dySign_1; }
+        else { drawPoint_1.x += dxSign_1; }
         
-		fault_1 += 2 * dy_1;
+        fault_1 += 2 * dy_1;
         
-		// trace the second edge till the drawpoint is in the same y as the first point
-		while (drawPoint_2.y != drawPoint_1.y) {
-			while (fault_2 >= 0) {
-				if (swapped_2) { drawPoint_2.x += dxSign_2; }
-				else { drawPoint_2.y += dySign_2; }
+        // trace the second edge till the drawpoint is in the same y as the first point
+        while (drawPoint_2.y != drawPoint_1.y) {
+            while (fault_2 >= 0) {
+                if (swapped_2) { drawPoint_2.x += dxSign_2; }
+                else { drawPoint_2.y += dySign_2; }
                 
-				fault_2 -= 2 * dx_2;
-			}
+                fault_2 -= 2 * dx_2;
+            }
             
-			if (swapped_2) { drawPoint_2.y += dySign_2; }
-			else { drawPoint_2.x += dxSign_2; }
+            if (swapped_2) { drawPoint_2.y += dySign_2; }
+            else { drawPoint_2.x += dxSign_2; }
             
-			fault_2 += 2 * dy_2;
-		}
-	}
+            fault_2 += 2 * dy_2;
+        }
+    }
 }
 
 // NOTE(Jai): Same as regular flatside filling, but the call to the drawline is
 // replaced by a call to a depthbuffered drawline function
 internal void
 og_renderer_fill_triangle_flatside_depthBuffered(og_OffscreenBuffer* videoBackbuffer,
-<<<<<<< HEAD
                                                  i32* depthBuffer,
                                                  P3i point1, P3i point2, P3i point3,
                                                  i32 imageWidth,
-=======
-                                                 f32* depthBuffer,
-                                                 P3i point1, P3i point2, P3i point3,
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
                                                  u32 colour) {
     P3i drawPoint_1 = point1;
     P3i drawPoint_2 = point1;
     
     // first edge
-	i32 dx_1 = 2 * (point3.x - point1.x);
+    i32 dx_1 = 2 * (point3.x - point1.x);
     i32 dxSign_1 = (dx_1 < 0) ? -1 : 1;
     dx_1 *= dxSign_1;
     i32 dy_1 = 2 * (point3.y - point1.y);
-	i32 dySign_1 = (dy_1 < 0) ? -1 : 1;
+    i32 dySign_1 = (dy_1 < 0) ? -1 : 1;
     dy_1 *= dySign_1;
     b32 swapped_1 = false;
     if (dx_1 < dy_1) { SWAP(dx_1, dy_1); swapped_1 = true; }
     i32 fault_1 = 2 * dy_1 - dx_1;
     
-	// second edge
+    // second edge
     i32 dx_2 = 2 * (point2.x - point1.x);
     i32 dxSign_2 = (dx_2 < 0) ? -1 : 1;
     dx_2 *= dxSign_2;
     i32 dy_2 = 2 * (point2.y - point1.y);
-	i32 dySign_2 = (dy_2 < 0) ? -1 : 1;
+    i32 dySign_2 = (dy_2 < 0) ? -1 : 1;
     dy_2 *= dySign_2;
-	b32 swapped_2 = false;
+    b32 swapped_2 = false;
     if (dx_2 < dy_2) { SWAP(dx_2, dy_2); swapped_2 = true; }
     i32 fault_2 = 2 * dy_2 - dx_2;
     
-	i32 largestDistance = dx_1 / 2;
+    i32 largestDistance = dx_1 / 2;
     
     // iterate from the topmost y to the lowermost y
-	for (i32 i = 0; i <= largestDistance; ++i) {
-		//draw a line between the two drawpoints
-		og_renderer_draw_line_depthBuffered(videoBackbuffer,
+    for (i32 i = 0; i <= largestDistance; ++i) {
+        //draw a line between the two drawpoints
+        og_renderer_draw_line_depthBuffered(videoBackbuffer,
                                             depthBuffer,
                                             drawPoint_1, drawPoint_2,
-<<<<<<< HEAD
                                             imageWidth,
-=======
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
                                             colour);
         
-		// trace the first edge till we move once in y
-		// TODO(Jai): Fix case where dx_1 = 0
+        // trace the first edge till we move once in y
+        // TODO(Jai): Fix case where dx_1 = 0
         while (fault_1 > 0) {
-			if (swapped_1) { drawPoint_1.x += dxSign_1; }
-			else { drawPoint_1.y += dySign_2; }
+            if (swapped_1) { drawPoint_1.x += dxSign_1; }
+            else { drawPoint_1.y += dySign_2; }
             
-			fault_1 -= 2 * dx_1;
-		}
+            fault_1 -= 2 * dx_1;
+        }
         
-		if (swapped_1) { drawPoint_1.y += dySign_1; }
-		else { drawPoint_1.x += dxSign_1; }
+        if (swapped_1) { drawPoint_1.y += dySign_1; }
+        else { drawPoint_1.x += dxSign_1; }
         
-		fault_1 += 2 * dy_1;
+        fault_1 += 2 * dy_1;
         
-		// trace the second edge till the drawpoint is in the same y as the first point
-		while (drawPoint_2.y != drawPoint_1.y) {
-			while (fault_2 >= 0) {
-				if (swapped_2) { drawPoint_2.x += dxSign_2; }
-				else { drawPoint_2.y += dySign_2; }
+        // trace the second edge till the drawpoint is in the same y as the first point
+        while (drawPoint_2.y != drawPoint_1.y) {
+            while (fault_2 >= 0) {
+                if (swapped_2) { drawPoint_2.x += dxSign_2; }
+                else { drawPoint_2.y += dySign_2; }
                 
-				fault_2 -= 2 * dx_2;
-			}
+                fault_2 -= 2 * dx_2;
+            }
             
-			if (swapped_2) { drawPoint_2.y += dySign_2; }
-			else { drawPoint_2.x += dxSign_2; }
+            if (swapped_2) { drawPoint_2.y += dySign_2; }
+            else { drawPoint_2.x += dxSign_2; }
             
-			fault_2 += 2 * dy_2;
-		}
-	}
+            fault_2 += 2 * dy_2;
+        }
+    }
 }
 
 internal void
 og_renderer_fill_triangle(og_OffscreenBuffer* videoBackbuffer,
                           Triangle2f triangle,
                           u32 colour) {
-	// Order the triangles according position in the y-axis
+    // Order the triangles according position in the y-axis
     P2i point1 = P2f_to_P2i(triangle.points[0]);
     P2i point2 = P2f_to_P2i(triangle.points[1]);
     P2i point3 = P2f_to_P2i(triangle.points[2]);
@@ -497,40 +455,36 @@ og_renderer_fill_triangle(og_OffscreenBuffer* videoBackbuffer,
     if (point3.y < point1.y) { SWAP(point3, point1); }
     if (point2.y < point1.y) { SWAP(point2, point1); }
     
-	// check for the trivial cases
-	if (point2.y == point3.y) { og_renderer_fill_triangle_flatside(videoBackbuffer,
+    // check for the trivial cases
+    if (point2.y == point3.y) { og_renderer_fill_triangle_flatside(videoBackbuffer,
                                                                    point1, point2, point3,
                                                                    colour); }
-	else if (point1.y == point2.y) { og_renderer_fill_triangle_flatside(videoBackbuffer,
+    else if (point1.y == point2.y) { og_renderer_fill_triangle_flatside(videoBackbuffer,
                                                                         point3, point1, point2,
                                                                         colour); }
-	// General case - split the triangle into two - one flat bottom and one flat top
-	else {
-		P2i tempPoint = {
-			.x = point1.x
-				+ (i32)((f32)(point3.x - point1.x) * ((f32)(point2.y - point1.y) / (f32)(point3.y - point1.y))),
-			.y = point2.y
-		};
+    // General case - split the triangle into two - one flat bottom and one flat top
+    else {
+        P2i tempPoint = {
+            .x = point1.x
+                + (i32)((f32)(point3.x - point1.x) * ((f32)(point2.y - point1.y) / (f32)(point3.y - point1.y))),
+            .y = point2.y
+        };
         
-		// Flat Bottom
-		og_renderer_fill_triangle_flatside(videoBackbuffer,
+        // Flat Bottom
+        og_renderer_fill_triangle_flatside(videoBackbuffer,
                                            point1, point2, tempPoint,
                                            colour);
-		// Flat Top
-		og_renderer_fill_triangle_flatside(videoBackbuffer,
+        // Flat Top
+        og_renderer_fill_triangle_flatside(videoBackbuffer,
                                            point3, point2, tempPoint,
                                            colour);
-	}
+    }
 }
 
 internal void
 og_renderer_fill_triangle_3D(og_OffscreenBuffer* videoBackbuffer,
                              Triangle3f triangle,
-<<<<<<< HEAD
                              i32* depthBuffer,
-=======
-                             f32* depthBuffer,
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
                              u32 colour) {
     // Bringing some of the decimal points of the float into significance
     // before converting to int
@@ -547,52 +501,37 @@ og_renderer_fill_triangle_3D(og_OffscreenBuffer* videoBackbuffer,
     if (point3.y < point1.y) { SWAP(point3, point1); }
     if (point2.y < point1.y) { SWAP(point2, point1); }
     
-<<<<<<< HEAD
     i32 imageWidth = (i32)videoBackbuffer->pitch / (i32)videoBackbuffer->pixelStride;
-	// check for the trivial cases
-	if (point2.y == point3.y) { og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
+    // check for the trivial cases
+    if (point2.y == point3.y) { og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
                                                                                  point1, point2, point3,
                                                                                  imageWidth,
                                                                                  colour); }
-	else if (point1.y == point2.y) { og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
+    else if (point1.y == point2.y) { og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
                                                                                       point3, point1, point2,
                                                                                       imageWidth,
-=======
-	// check for the trivial cases
-	if (point2.y == point3.y) { og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
-                                                                                 point1, point2, point3,
-                                                                                 colour); }
-	else if (point1.y == point2.y) { og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
-                                                                                      point3, point1, point2,
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
                                                                                       colour); }
-	// General case - split the triangle into two - one flat bottom and one flat top
-	else {
-		P3i tempPoint = {
-			.x = point1.x
-				+ (i32)((f32)(point3.x - point1.x) * ((f32)(point2.y - point1.y) / (f32)(point3.y - point1.y))),
-			.y = point2.y,
+    // General case - split the triangle into two - one flat bottom and one flat top
+    else {
+        P3i tempPoint = {
+            .x = point1.x
+                + (i32)((f32)(point3.x - point1.x) * ((f32)(point2.y - point1.y) / (f32)(point3.y - point1.y))),
+            .y = point2.y,
             .z = point1.z
-				+ (i32)((f32)(point3.z - point1.z) * ((f32)(point2.y - point1.y) / (f32)(point3.y - point1.y)))
-		};
+                + (i32)((f32)(point3.z - point1.z) * ((f32)(point2.y - point1.y) / (f32)(point3.y - point1.y)))
+        };
         
-		// Flat Bottom
-		og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
+        // Flat Bottom
+        og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
                                                          point1, point2, tempPoint,
-<<<<<<< HEAD
                                                          imageWidth,
-=======
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
                                                          colour);
-		// Flat Top
-		og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
+        // Flat Top
+        og_renderer_fill_triangle_flatside_depthBuffered(videoBackbuffer, depthBuffer,
                                                          point3, point2, tempPoint,
-<<<<<<< HEAD
                                                          imageWidth,
-=======
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
                                                          colour);
-	}
+    }
 }
 
 internal void

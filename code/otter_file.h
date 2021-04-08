@@ -1,13 +1,9 @@
 #ifndef OTTER_FILE_H
 #define OTTER_FILE_H
 
-<<<<<<< HEAD
-=======
 #include "utils.h"
 #include "otter_platform.h"
 #include "otter_math.h"
-
->>>>>>> 1bcea34df0531ed71a67cdfccabe80d74332a817
 internal i32
 og_file_scan_delimited(FileReadResult file,
                        char delimiter,
