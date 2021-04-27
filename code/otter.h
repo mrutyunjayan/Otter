@@ -4,12 +4,13 @@
 #define OTTER_H
 
 #include "utils.h"
-#include "otter_allocators.h"
 
+#include "otter_allocators.h"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Weverything"
-#include <stretchy_buffer.h>
 #pragma clang diagnostic pop
+
+typedef struct Mesh Mesh;
 
 typedef struct og_OffscreenBuffer {
     void* pixels;
@@ -21,7 +22,7 @@ typedef struct og_OffscreenBuffer {
 } og_OffscreenBuffer;
 
 typedef struct otter_GameState {
-    void* assetData;
+    Mesh* meshes;
     
     Arena scratch;
     Arena worldArena;

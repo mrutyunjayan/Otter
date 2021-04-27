@@ -59,15 +59,18 @@ if(!(expression)) {\
 
 #define STRING(name) #name
 
-#define IS_POWER_OF_2(x) ((x & (x - 1)) == 0) 
+#define IS_POWER_OF_2(x) ((x & (x - 1)) == 0)
 
 #define OG_FLT_MAX FLT_MAX
 #define OG_INT_MAX INT_MAX
+
+#define MAX(a, b) a > b ? a : b
+#define MIN(a, b) a < b ? a : b
 //~ STRING STUFF
-inline internal void
-og_catStrings(i64 sourceACount, char* sourceA,
-              i64 sourceBCount, char* sourceB,
-              i64 destCount, char* dest) {
+internal inline void
+ogUtils_catStrings(i64 sourceACount, char* sourceA,
+                   i64 sourceBCount, char* sourceB,
+                   i64 destCount, char* dest) {
     // TODO(Jai): dest bounds checking
     for (int i = 0; i < sourceACount; ++i) {
         *dest++ = *sourceA++;
@@ -80,8 +83,8 @@ og_catStrings(i64 sourceACount, char* sourceA,
     *dest++ = 0;
 }
 
-inline internal int
-og_stringLength(char* string) {
+internal inline int
+ogUtils_stringLength(char* string) {
     int count = 0;
     while (*string++) {
         ++count;
@@ -104,23 +107,23 @@ memcpy(&b, _swapTemp, sizeof(a)); \
 
 //~----------- Number Stuff ----------------
 // NOTE(Jai): Round up the float value to int
-inline internal i32
-og_round_floatToI32(f32 number) {
+internal inline i32
+ogUtils_round_floatToI32(f32 number) {
     return ((i32)(number + 0.5f));
 }
 
-inline internal i32
-og_truncate_floatToI32(f32 number) {
+internal inline i32
+ogUtils_truncate_floatToI32(f32 number) {
     return (i32)number;
 }
 
-inline internal i32
-floor_floatToI32(f32 number) {
+internal inline i32
+ogUtils_floor_floatToI32(f32 number) {
     return (i32)(floorf(number));
 }
 
-inline internal u32
-og_rgba_to_hex(u32 red, u32 green, u32 blue, u32 alpha) {
+internal inline u32
+ogUtils_rgba_to_hex(u32 red, u32 green, u32 blue, u32 alpha) {
     u32 result = alpha << 24
 		| red << 16
         | green << 8
@@ -130,8 +133,8 @@ og_rgba_to_hex(u32 red, u32 green, u32 blue, u32 alpha) {
 }
 
 //- Truncate
-inline internal u32 
-og_truncate_safe_i64(i64 value) {
+internal inline u32
+ogUtils_truncate_safe_i64(i64 value) {
     // TODO(Jai): Defines for maximum values (u32_t)
     ASSERT(value <= 0xFFFFFFFF);
     u32 result = (u32)value;
@@ -141,13 +144,13 @@ og_truncate_safe_i64(i64 value) {
 
 // TODO(Jai): reimplement myself
 //- string to numbers
-inline internal i64
-og_strtoll(readOnly char* str, char** endPtr, i32 base) {
+internal inline i64
+ogUtils_strtoll(readOnly char* str, char** endPtr, i32 base) {
     return strtoll(str, endPtr, base);
 }
 
-inline internal f32
-og_strtof(readOnly char* str, char** endPtr) {
+internal inline f32
+ogUtils_strtof(readOnly char* str, char** endPtr) {
     return strtof(str, endPtr);
 }
 
