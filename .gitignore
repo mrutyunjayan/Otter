@@ -54,3 +54,5 @@ dkms.conf
 #folders
 build
 references
+.vs
+.cache
