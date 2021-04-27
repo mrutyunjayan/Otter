@@ -17,8 +17,8 @@ typedef struct {
 } Arena;
 
 internal uintptr 
-og_arena_alignForward(uintptr ptr,
-                      memoryIndex align) {
+ogAlloc_arena_alignForward(uintptr ptr,
+                           memoryIndex align) {
 	ASSERT(IS_POWER_OF_2(align));
 	
 	uintptr result, a, modulo;
@@ -32,15 +32,15 @@ og_arena_alignForward(uintptr ptr,
 }
 
 internal void*
-og_arena_allocAlign(Arena* arena,
-                    memoryIndex allocation,
-                    memoryIndex align) {
+ogAlloc_arena_allocAlign(Arena* arena,
+                         memoryIndex allocation,
+                         memoryIndex align) {
 	void* result = 0;
     
     uintptr currentPtr = (uintptr)arena->buffer + (uintptr)arena->currentOffset;
 	// Calculate the offset
-	uintptr offset = og_arena_alignForward(currentPtr,
-                                           align);
+	uintptr offset = ogAlloc_arena_alignForward(currentPtr,
+                                                align);
 	// Change to relative offset
 	offset -= (uintptr)arena->buffer; 
 	// Check to see if the backing memory has space left
@@ -60,32 +60,32 @@ og_arena_allocAlign(Arena* arena,
 #define DEFAULT_ARENA_ALIGNMENT (2 * sizeof(void*))
 #endif
 
-#define ARENA_PUSH_STRUCT(arena, type) (type*)og_arena_alloc(arena, sizeof(type))
-#define ARENA_PUSH_STRUCTALIGNED(arena, type, align) (type*)og_arena_allocAlign(arena, sizeof(type), align)
-#define ARENA_PUSH_ARRAY(arena, count, type) (type*)og_arena_alloc(arena, (count * sizeof(type)))
-#define ARENA_PUSH_ARRAYALIGNED(arena, count, type, align) (type*)og_arena_allocAlign(arena, (count * sizeof(type)), align)
+#define ARENA_PUSH_STRUCT(arena, type) (type*)ogAlloc_arena_alloc(arena, sizeof(type))
+#define ARENA_PUSH_STRUCTALIGNED(arena, type, align) (type*)ogAlloc_arena_allocAlign(arena, sizeof(type), align)
+#define ARENA_PUSH_ARRAY(arena, count, type) (type*)ogAlloc_arena_alloc(arena, (count * sizeof(type)))
+#define ARENA_PUSH_ARRAYALIGNED(arena, count, type, align) (type*)ogAlloc_arena_allocAlign(arena, (count * sizeof(type)), align)
 
 // Because C doesn't allow default parameters
 internal void*
-og_arena_alloc(Arena* arena,
-               memoryIndex size) {
-	return og_arena_allocAlign(arena,
-                               size,
-                               DEFAULT_ARENA_ALIGNMENT);
+ogAlloc_arena_alloc(Arena* arena,
+                    memoryIndex size) {
+	return ogAlloc_arena_allocAlign(arena,
+                                    size,
+                                    DEFAULT_ARENA_ALIGNMENT);
 }
 
 internal void*
-og_arena_resizeAlign(Arena* arena,
-                     void* oldMemory,
-                     memoryIndex oldSize,
-                     memoryIndex newSize,
-                     memoryIndex align) {
+ogAlloc_arena_resizeAlign(Arena* arena,
+                          void* oldMemory,
+                          memoryIndex oldSize,
+                          memoryIndex newSize,
+                          memoryIndex align) {
 	ASSERT(IS_POWER_OF_2(align));
 	
 	if (oldMemory == NULL || oldSize == 0) {
-		return og_arena_allocAlign(arena,
-                                   newSize,
-                                   align);
+		return ogAlloc_arena_allocAlign(arena,
+                                        newSize,
+                                        align);
 	} else if (arena->buffer <= (u8*)oldMemory
 			   && (u8*)oldMemory < (arena->buffer + arena->bufferSize)) {
 		if (arena->buffer + arena->memoryBlockStart == oldMemory) {
@@ -98,9 +98,9 @@ og_arena_resizeAlign(Arena* arena,
 			
 			return oldMemory;
 		} else {
-			void* newMemory = og_arena_allocAlign(arena,
-                                                  newSize,
-                                                  align);
+			void* newMemory = ogAlloc_arena_allocAlign(arena,
+                                                       newSize,
+                                                       align);
 			memoryIndex copySize = oldSize < newSize ? oldSize : newSize;
 			memmove(newMemory,
 					oldMemory,
@@ -116,21 +116,21 @@ og_arena_resizeAlign(Arena* arena,
 
 // Because C doesn't allow default parameters
 internal void*
-og_arena_resize(Arena* arena,
-                void* oldMemory,
-                memoryIndex oldSize,
-                memoryIndex newSize) {
-	return og_arena_resizeAlign(arena,
-                                oldMemory,
-                                oldSize,
-                                newSize,
-                                DEFAULT_ARENA_ALIGNMENT);
+ogAlloc_arena_resize(Arena* arena,
+                     void* oldMemory,
+                     memoryIndex oldSize,
+                     memoryIndex newSize) {
+	return ogAlloc_arena_resizeAlign(arena,
+                                     oldMemory,
+                                     oldSize,
+                                     newSize,
+                                     DEFAULT_ARENA_ALIGNMENT);
 }
 
 internal void
-og_arena_initialize(Arena* arena,
-                    void* backingBuffer,
-                    memoryIndex backingBufferLength) {
+ogAlloc_arena_initialize(Arena* arena,
+                         void* backingBuffer,
+                         memoryIndex backingBufferLength) {
     arena->buffer = (u8*)backingBuffer;
     arena->bufferSize = backingBufferLength;
     arena->currentOffset = 0;
@@ -139,7 +139,7 @@ og_arena_initialize(Arena* arena,
 
 // NOTE(Jai): Completely frees the arena
 internal void
-og_arena_free(Arena* arena) {
+ogAlloc_arena_free(Arena* arena) {
 	arena->currentOffset = 0;
 	arena->memoryBlockStart = 0;
 }

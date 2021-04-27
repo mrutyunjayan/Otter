@@ -37,7 +37,7 @@ win32_console_printError(char* message) {
 // ------------------GET BUILD DIRECTORY-----------------------------------
 //*************************************************************************
 
-inline internal void
+internal inline void
 win32_getExeFileName(win32_State* platformState) {
 	// NOTE(Jai): never use MAX_PATH (aka WIN32_STATE_FILE_NAME_COUNT code that is user facing because it
     // can be dangerous and lead to bad results
@@ -51,13 +51,13 @@ win32_getExeFileName(win32_State* platformState) {
     }
 }
 
-inline internal void
+internal inline void
 win32_buildExePathFileName(win32_State* platformState,
                            char* fileName,
                            int destCount, char* dest) {
-	og_catStrings((platformState->onePastLastSlash - platformState->exeFileName), platformState->exeFileName,
-                  og_stringLength(fileName), fileName,
-                  destCount, dest);
+	ogUtils_catStrings((platformState->onePastLastSlash - platformState->exeFileName), platformState->exeFileName,
+                       ogUtils_stringLength(fileName), fileName,
+                       destCount, dest);
 }
 
 //~ FILE I/O
@@ -104,7 +104,7 @@ PLATFORM_FILE_READ_FULL(platform_file_read_full) {
         LARGE_INTEGER fileSize64;
         if(GetFileSizeEx(fileHandle, &fileSize64)) {
             
-            u32 fileSize = og_truncate_safe_i64(fileSize64.QuadPart);
+            u32 fileSize = ogUtils_truncate_safe_i64(fileSize64.QuadPart);
             result.contents = VirtualAlloc(0,
                                            fileSize,
                                            MEM_RESERVE | MEM_COMMIT,
@@ -370,7 +370,6 @@ win32_window_update(HDC deviceContext,
                   DIB_RGB_COLORS,
                   SRCCOPY);
 #endif
-    
     win32_videoBuffer_clear();
 }
 
@@ -467,7 +466,7 @@ WinMain(HINSTANCE instance,
                                   960, 540);
     
     // Register the window class.
-    WNDCLASS windowClass = {0};
+    WNDCLASSA windowClass = {0};
     
     windowClass.lpfnWndProc   = win32_mainWindowCallback;
     windowClass.hInstance     = instance;

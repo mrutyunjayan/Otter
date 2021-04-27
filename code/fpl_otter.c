@@ -371,11 +371,11 @@ win32_unloadGameCode(win32_GameCode* gameCode) {
             .bufferSize = totalMemorySize
         };
         
-        og_arena_alloc(&arena,
-                       otter_memory.persistentStorageSize);
+        ogAlloc_arena_alloc(&arena,
+                            otter_memory.persistentStorageSize);
         otter_memory.persistentStorage = &arena.buffer[arena.memoryBlockStart];
-        og_arena_alloc(&arena,
-                       otter_memory.transientStorageSize);
+        ogAlloc_arena_alloc(&arena,
+                            otter_memory.transientStorageSize);
         otter_memory.transientStorage = &arena.buffer[arena.memoryBlockStart];
         
         global_videoBackbufferPtr = fplGetVideoBackbuffer();
