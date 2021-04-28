@@ -22,24 +22,33 @@ load_paths = {
 };
 
 command_list = {
-	{ 
+	{
 		.name = "build",
 		.out = "*COMPILATION*",
 		.footer_panel = false,
 		.save_dirty_files = true,
 		.cmd = {
-				{ "build.bat" , .os = "win"   },
+				{ "build_dll.bat" , .os = "win"   },
             },
 	},
-	{ 
+    {
+		.name = "build full",
+		.out = "*COMPILATION*",
+		.footer_panel = false,
+		.save_dirty_files = true,
+		.cmd = {
+				{ "build_dll.bat" , .os = "win"   },
+            },
+	},
+	{
 		.name = "debug",
-//		.footer_panel = false,
 		.save_dirty_files = false,
-		.cmd = { 
+		.cmd = {
 			{ "remedybg build\otter.rdbg" , .os = "win"   },
 		},
 	},
 };
 
 fkey_command[1] = "build";
+fkey_command[2] = "build full";
 fkey_command[5] = "debug";
