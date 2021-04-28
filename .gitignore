@@ -55,6 +55,7 @@ build
 references
 .vs
 .cache
+data
 
 #windows header copies
 og_d3d10.h
