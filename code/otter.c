@@ -48,7 +48,7 @@ OTTER_UPDATE_AND_RENDER(otterUpdateAndRender) {
     V3f camera = {0};
     //period += 0.009f;
     
-    f32 theta = PI;//period / (2.0f * PI);
+    f32 theta =  PI;//period / (2.0f * PI);
     if (period > 360.0f) { period = 0.0f; }
     
     // Transformation Matrices

@@ -4,6 +4,18 @@
 #include "otter_platform.h"
 #include "win32_otter.h"
 
+#include <d3d11.h>
+#include <d3d10.h>
+#include <dxgi.h>
+
+#pragma comment (lib, "d3d11.lib")
+#pragma comment (lib, "d3d10.lib")
+#pragma comment (lib, "dxgi.lib")
+
+global IDXGISwapChain* d3d_swapChain;
+global ID3D11Device* d3d_device;
+global ID3D11DeviceContext* d3d_dc;
+
 //~ GLOBALS
 global b32 running = true;
 global win32_OffScreenBuffer win32_videoBuffer = { .pixelStride = 4 };
@@ -11,26 +23,26 @@ global win32_OffScreenBuffer win32_videoBuffer = { .pixelStride = 4 };
 //~ CONSOLE OUTPUT
 internal void
 win32_console_print(char* message) {
-	OutputDebugString(message);
+	OutputDebugStringA(message);
 	DWORD length = (DWORD)strlen(message);
 	LPDWORD numberWritten = 0;
 	WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE),
                  message,
                  length,
                  numberWritten,
-                 NULL);
+                 0);
 }
 
 internal void
 win32_console_printError(char* message) {
-	OutputDebugString(message);
+	OutputDebugStringA(message);
 	DWORD length = (DWORD)strlen(message);
 	LPDWORD numberWritten = 0;
 	WriteConsole(GetStdHandle(STD_ERROR_HANDLE),
                  message,
                  length,
                  numberWritten,
-                 NULL);
+                 0);
 }
 
 //*************************************************************************
@@ -41,9 +53,9 @@ internal inline void
 win32_getExeFileName(win32_State* platformState) {
 	// NOTE(Jai): never use MAX_PATH (aka WIN32_STATE_FILE_NAME_COUNT code that is user facing because it
     // can be dangerous and lead to bad results
-    DWORD sizeOfFileName = GetModuleFileName(0,
-                                             platformState->exeFileName,
-                                             sizeof(platformState->exeFileName));
+    DWORD sizeOfFileName = GetModuleFileNameA(0,
+                                              platformState->exeFileName,
+                                              sizeof(platformState->exeFileName));
     
     platformState->onePastLastSlash = platformState->exeFileName;
     for (char* scan = platformState->exeFileName; *scan; ++scan) {
@@ -95,28 +107,26 @@ PLATFORM_FILE_READ_FULL(platform_file_read_full) {
     HANDLE fileHandle = CreateFile(fileName,
                                    GENERIC_READ,
                                    FILE_SHARE_READ,
-                                   (LPSECURITY_ATTRIBUTES)NULL,
+                                   (LPSECURITY_ATTRIBUTES)0,
                                    OPEN_EXISTING,
                                    FILE_ATTRIBUTE_NORMAL,
-                                   NULL);
+                                   0);
     
     if (fileHandle != INVALID_HANDLE_VALUE) {
         LARGE_INTEGER fileSize64;
         if(GetFileSizeEx(fileHandle, &fileSize64)) {
-            
             u32 fileSize = ogUtils_truncate_safe_i64(fileSize64.QuadPart);
             result.contents = VirtualAlloc(0,
                                            fileSize,
                                            MEM_RESERVE | MEM_COMMIT,
                                            PAGE_READWRITE);
             if (result.contents) {
-                
                 DWORD bytesRead;
                 if (ReadFile(fileHandle,
                              result.contents,
                              fileSize,
                              &bytesRead,
-                             (LPOVERLAPPED)NULL)) { result.contentSize = fileSize;  }
+                             (LPOVERLAPPED)0)) { result.contentSize = fileSize;  }
                 else { VirtualFree(result.contents, 0, MEM_RELEASE); }
             }  else {
                 // TODO(Jai): logging
@@ -142,7 +152,6 @@ platform_file_write_full(ThreadContext* thread,
 #endif
 PLATFORM_FILE_WRITE_FULL(platform_file_write_full) {
     b32 result = false;
-    
     HANDLE fileHandle = CreateFileA(fileName,
                                     GENERIC_WRITE,
                                     0,
@@ -153,7 +162,6 @@ PLATFORM_FILE_WRITE_FULL(platform_file_write_full) {
     
     if (fileHandle != INVALID_HANDLE_VALUE) {
         DWORD bytesWritten;
-        
         if (WriteFile(fileHandle,
                       memory,
                       memorySize,
@@ -164,7 +172,6 @@ PLATFORM_FILE_WRITE_FULL(platform_file_write_full) {
         } else {
             // TODO(Jai): Logging
         }
-        
         CloseHandle(fileHandle);
     } else {
         // TODO(Jai): Logging
@@ -180,21 +187,17 @@ win32_gameCode_load(char* sourceLibraryName,
                     char* tempLibraryName,
                     char* lockFileName) {
     win32_GameCode result = {0};
-    
 	WIN32_FILE_ATTRIBUTE_DATA ignored;
 	if (!GetFileAttributesExA(lockFileName,
 							  GetFileExInfoStandard,
 							  &ignored)) {
-		
 		result.lastModifiedTime = win32_file_getModifiedTime(sourceLibraryName);
 		if (!CopyFileA(sourceLibraryName,
 					   tempLibraryName,
 					   FALSE)) {
 			DWORD error = GetLastError();
 		}
-		
 		result.gameLibrary = LoadLibraryA(tempLibraryName);
-		
 		if (result.gameLibrary) {
 			result.updateAndRender = (otter_updateAndRender*)GetProcAddress(result.gameLibrary,
                                                                             "otterUpdateAndRender");
@@ -202,10 +205,7 @@ win32_gameCode_load(char* sourceLibraryName,
 			result.isValid = result.updateAndRender ? true : false;
 		}
 	}
-    
-    if (!result.isValid) {
-        result.updateAndRender = 0;
-    }
+    if (!result.isValid) { result.updateAndRender = 0; }
     
     return result;
 }
@@ -221,14 +221,14 @@ win32_gameCode_unload(win32_GameCode* gameCode) {
     gameCode->updateAndRender = 0;
 }
 
+// HACK(Jai): works for now
 #include <string.h>
-
 //~ Clear Video Buffer
 internal void
 win32_videoBuffer_clear() {
 #if 0
     for (u32 y = 0; y < win32_videoBuffer.height; ++y) {
-        u32* pixel = (u32*)((u8*)win32_videoBuffer.memory 
+        u32* pixel = (u32*)((u8*)win32_videoBuffer.memory
                             + y * win32_videoBuffer.width);
         
         for (u32 x = 0; x < win32_videoBuffer.width; ++x) {
@@ -276,10 +276,45 @@ internal void
 win32_clock_stop(Clock* clock) {
     clock->startTime = 0;
 }
+//~ D3D11
+
+internal void
+d3d_init(HWND window) {
+    // create a struct to hold information about the swap chain
+    DXGI_SWAP_CHAIN_DESC swapChainDesc = {
+        .BufferCount = 1,                                    // one back buffer
+        .BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM,     // use 32-bit color
+        .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,      // how swap chain is to be used
+        .OutputWindow = window,                              // the window to be used
+        .SampleDesc.Count = 4,                               // how many multisamples
+        .Windowed = TRUE
+    };
+    
+    // create a device, device context and swap chain using the information in the swapChainDesc struct
+    D3D11CreateDeviceAndSwapChain(0,
+                                  D3D_DRIVER_TYPE_HARDWARE,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  D3D11_SDK_VERSION,
+                                  &swapChainDesc,
+                                  &d3d_swapChain,
+                                  &d3d_device,
+                                  0,
+                                  &d3d_dc);
+}
+
+internal inline void
+d3d_close() {
+    IDXGISwapChain_Release(d3d_swapChain);
+    ID3D11Device_Release(d3d_dc);
+    ID3D11DeviceContext_Release(d3d_dc);
+}
 
 //~ WINDOWING
 
-internal win32_WindowDimensions 
+internal win32_WindowDimensions
 win32_window_getDimensions(HWND windowHandle) {
     win32_WindowDimensions result;
     
@@ -296,8 +331,8 @@ win32_window_resizeDIBSection(win32_OffScreenBuffer* buffer,
                               u32 width,
                               u32 height){
     if (buffer->memory) {
-        VirtualFree(buffer->memory, 
-                    0, 
+        VirtualFree(buffer->memory,
+                    0,
                     MEM_RELEASE);
     }
     
@@ -318,9 +353,9 @@ win32_window_resizeDIBSection(win32_OffScreenBuffer* buffer,
     
     size_t bitmapMemorySize = buffer->width * buffer->height * buffer->pixelStride;
     
-    buffer->memory = VirtualAlloc(NULL, 
-                                  bitmapMemorySize, 
-                                  MEM_RESERVE | MEM_COMMIT, 
+    buffer->memory = VirtualAlloc(0,
+                                  bitmapMemorySize,
+                                  MEM_RESERVE | MEM_COMMIT,
                                   PAGE_READWRITE);
     
     // TODO(Jai): Probably clear this to black
@@ -344,25 +379,24 @@ win32_window_update(HDC deviceContext,
                       SRCCOPY);
     } else {
         int offsetX = 10;
-		int offsetY = 10;
-		// NOTE(Jai): For protyping purposes we are always blitting 
-		// 1 - 1 pixels to make sure we don't introduce artifacts with
-		// stretching while we are learning to code the renderer
-		StretchDIBits(deviceContext,
-					  offsetX, offsetY,
+        int offsetY = 10;
+        // NOTE(Jai): For protyping purposes we are always blitting
+        // 1 - 1 pixels to make sure we don't introduce artifacts with
+        // stretching while we are learning to code the renderer
+        StretchDIBits(deviceContext,
+                      offsetX, offsetY,
                       (int)(buffer->width * 2), (int)(buffer->height * 2),
                       0, 0,
                       (int)buffer->width, (int)buffer->height,
-					  buffer->memory,
-					  &buffer->info,
-					  DIB_RGB_COLORS,
-					  SRCCOPY);
-	}
+                      buffer->memory,
+                      &buffer->info,
+                      DIB_RGB_COLORS,
+                      SRCCOPY);
+    }
 #else
     StretchDIBits(deviceContext,
                   0 ,0,
                   windowWidth, windowHeight,
-                  
                   0, 0,
                   (int)win32_videoBuffer.width, (int)win32_videoBuffer.height,
                   win32_videoBuffer.memory,
@@ -377,7 +411,6 @@ win32_window_update(HDC deviceContext,
 internal void
 win32_messages_processPending(win32_State* platformState) {
     MSG message;
-    
     while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
         switch (message.message) {
             case WM_QUIT: {
@@ -404,9 +437,7 @@ win32_mainWindowCallback(HWND window,
                          WPARAM wParam,
                          LPARAM lParam) {
     LRESULT result = 0;
-    
     switch (message) {
-        
         case WM_CLOSE: {
             running = false;
         } break;
@@ -424,8 +455,8 @@ win32_mainWindowCallback(HWND window,
             EndPaint(window, &paint);
         } break;
         
-        default: { 
-            result = DefWindowProc(window, message, wParam, lParam); 
+        default: {
+            result = DefWindowProc(window, message, wParam, lParam);
         } break;
     }
     
@@ -473,26 +504,26 @@ WinMain(HINSTANCE instance,
     windowClass.lpszClassName = "OtterWindow";
     windowClass.style = CS_HREDRAW | CS_VREDRAW;
     
-    RegisterClass(&windowClass);
+    RegisterClassA(&windowClass);
     
     // Create the window.
-    HWND window = CreateWindowEx(0,                                 // Optional window styles.
-                                 windowClass.lpszClassName,         // Window class
-                                 "Otter",                     // Window text
-                                 WS_OVERLAPPEDWINDOW,               // Window style
-                                 // Size and position
-                                 CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                                 NULL,       // Parent window    
-                                 NULL,       // Menu
-                                 instance,   // Instance handle
-                                 NULL        // Additional application data
-                                 );
+    HWND window = CreateWindowExA(0,                                 // Optional window styles.
+                                  windowClass.lpszClassName,         // Window class
+                                  "Otter",                     // Window text
+                                  WS_OVERLAPPEDWINDOW,               // Window style
+                                  // Size and position
+                                  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                                  0,       // Parent window
+                                  0,       // Menu
+                                  instance,   // Instance handle
+                                  0        // Additional application data
+                                  );
     
     if (!window) {
-        MessageBox(0, 
-                   "Window creation failed",
-                   "Error",
-                   MB_ICONEXCLAMATION | MB_OK);
+        MessageBoxA(0,
+                    "Window creation failed",
+                    "Error",
+                    MB_ICONEXCLAMATION | MB_OK);
         return -1;
     }
     
@@ -514,9 +545,9 @@ WinMain(HINSTANCE instance,
     platformState.totalSize = otter_memory.persistentStorageSize + otter_memory.transientStorageSize;
     platformState.gameMemoryBlock = VirtualAlloc(baseAddress,
                                                  (size_t)platformState.totalSize,
-                                                 MEM_RESERVE | MEM_COMMIT, 
+                                                 MEM_RESERVE | MEM_COMMIT,
                                                  PAGE_READWRITE);
-	
+    
     
     otter_memory.persistentStorage = platformState.gameMemoryBlock;
     otter_memory.transientStorage = (u8*)(otter_memory.persistentStorage) + otter_memory.persistentStorageSize;
@@ -525,7 +556,6 @@ WinMain(HINSTANCE instance,
         win32_GameCode game = win32_gameCode_load(sourceGameCodeLibFullPath,
                                                   tempGameCodeLibFullPath,
                                                   gameCodeLockFullPath);
-        
         
         LONG fileModified = false;
         b32 needToReload = false;
@@ -574,7 +604,7 @@ WinMain(HINSTANCE instance,
             
             if (game.updateAndRender) {
                 game.updateAndRender(&thread,
-                                     &otter_memory, 
+                                     &otter_memory,
                                      &otter_videoBuffer);
             }
             
@@ -594,4 +624,3 @@ WinMain(HINSTANCE instance,
     
     return 0;
 }
-

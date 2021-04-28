@@ -37,7 +37,7 @@ command_list = {
 		.footer_panel = false,
 		.save_dirty_files = true,
 		.cmd = {
-				{ "build_dll.bat" , .os = "win"   },
+				{ "build.bat" , .os = "win"   },
             },
 	},
 	{

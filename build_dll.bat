@@ -45,7 +45,9 @@ SET exports=^
 
 SET defines=^
 	-DOTTER_DEBUG=1^
-	-DOTTER_INTERNAL=1
+	-DOTTER_INTERNAL=1^
+	-DOTTER_D3D11=1^
+    -DCOBJMACROS
 
 SET libs=^
 	User32.lib^

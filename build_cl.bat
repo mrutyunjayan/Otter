@@ -39,7 +39,7 @@ set exports=^
 	-EXPORT:otterUpdateAndRender
 
 set defines=^
-	-DFPL_IMPLEMENTATION^
+	-DOTTER_D3D11^
 	-DOTTER_DEBUG
 
 set libs=^
@@ -80,6 +80,6 @@ cl^
 	-Fegame^
 	/link -SUBSYSTEM:WINDOWS^
 	%libs%^
-	%linker_flags% 
+	%linker_flags%
 
 popd

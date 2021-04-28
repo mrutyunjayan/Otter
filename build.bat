@@ -1,4 +1,8 @@
+@ECHO OFF
+
+ECHO FULL COMPILATION
 CALL %cd%\build_dll.bat
+
 
 PUSHD build
 
