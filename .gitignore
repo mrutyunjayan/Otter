@@ -85,3 +85,13 @@ og_windows.h
 og_wingdi.h
 og_winnt.h
 og_winuser.h
+og_d3d11_4.h
+og_d3dcompiler.h
+og_dxgi1_2.h
+og_dxgi1_5.h
+og_dxgicommon.h
+og_dxgiddi.h
+og_dxgidebug.h
+og_hlsl.h
+og_stringapiset.h
+og_xinput.h 
