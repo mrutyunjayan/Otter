@@ -1,4 +1,8 @@
 @ECHO OFF
+ECHO =====================
+ECHO  GAME DLL COMPILATION
+ECHO =====================
+ECHO .
 
 IF NOT DEFINED DevEnvDir (
 	CALL "D:\VS\2019\VC\Auxiliary\Build\vcvars64.bat" >NUL
@@ -44,10 +48,13 @@ SET exports=^
 	-EXPORT:otterUpdateAndRender
 
 SET defines=^
-	-DOTTER_DEBUG=1^
-	-DOTTER_INTERNAL=1^
-	-DOTTER_D3D11=1^
-    -DCOBJMACROS
+	-DOGDEBUG_RENDERER=1^
+	-DOG_INTERNAL=1^
+	-DOG_D3D11=1^
+    -DCOBJMACROS=1^
+    -DCINTERFACE=1^
+    -DD3D11_NO_HELPERS=1^
+	-DDEBUG_RENDERER=1
 
 SET libs=^
 	User32.lib^

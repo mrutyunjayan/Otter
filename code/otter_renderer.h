@@ -1,11 +1,11 @@
-#ifndef OTTER_RENDERER_H
-#define OTTER_RENDERER_H
+#ifndef OG_RENDERER_H
+#define OG_RENDERER_H
 
 #include "otter.h"
 #include "otter_math.h"
 #include "utils.h"
 
-#if defined(OTTER_DEBUG)
+#if DEBUG_RENDERER
 #include "stdio.h"
 #endif
 
@@ -279,7 +279,7 @@ ogRenderer_fill_triangle_flatside(og_OffscreenBuffer* videoBackbuffer,
     i32 dy_1 = 2 * (point3.y - point1.y);
     i32 dySign_1 = (dy_1 < 0) ? -1 : 1;
     dy_1 *= dySign_1;
-    b32 swapped_1 = false;
+    b8 swapped_1 = false;
     if (dx_1 < dy_1) { SWAP(dx_1, dy_1); swapped_1 = true; }
     i32 fault_1 = 2 * dy_1 - dx_1;
     
@@ -290,7 +290,7 @@ ogRenderer_fill_triangle_flatside(og_OffscreenBuffer* videoBackbuffer,
     i32 dy_2 = 2 * (point2.y - point1.y);
     i32 dySign_2 = (dy_2 < 0) ? -1 : 1;
     dy_2 *= dySign_2;
-    b32 swapped_2 = false;
+    b8 swapped_2 = false;
     if (dx_2 < dy_2) { SWAP(dx_2, dy_2); swapped_2 = true; }
     i32 fault_2 = 2 * dy_2 - dx_2;
     
@@ -359,7 +359,7 @@ ogRenderer_fill_triangle_flatside_depthBuffered(og_OffscreenBuffer* videoBackbuf
     i32 dy_1 = 2 * (point3.y - point1.y);
     i32 dySign_1 = (dy_1 < 0) ? -1 : 1;
     dy_1 *= dySign_1;
-    b32 swapped_1 = false;
+    b8 swapped_1 = false;
     if (dx_1 < dy_1) { SWAP(dx_1, dy_1); swapped_1 = true; }
     i32 fault_1 = 2 * dy_1 - dx_1;
     
@@ -370,7 +370,7 @@ ogRenderer_fill_triangle_flatside_depthBuffered(og_OffscreenBuffer* videoBackbuf
     i32 dy_2 = 2 * (point2.y - point1.y);
     i32 dySign_2 = (dy_2 < 0) ? -1 : 1;
     dy_2 *= dySign_2;
-    b32 swapped_2 = false;
+    b8 swapped_2 = false;
     if (dx_2 < dy_2) { SWAP(dx_2, dy_2); swapped_2 = true; }
     i32 fault_2 = 2 * dy_2 - dx_2;
     
@@ -660,4 +660,87 @@ ogRenderer_triangle_transform_homogeneous(readOnly Triangle3f* triangle,
     return result;
 }
 
-#endif //OTTER_RENDERER
+internal void
+ogRenderer_mesh_render(otter_GameState* gameState,
+                       og_OffscreenBuffer* videoBuffer) {
+    Mesh mesh = gameState->meshes[0];
+    
+    //~ // NOTE(Jai): REFERNCES
+	//- https://github.com/OneLoneCoder/videos
+    //- https://www.gabrielgambetta.com/computer-graphics-from-scratch/
+    i32* depthBuffer = ARENA_PUSH_ARRAY(&gameState->scratch, (videoBuffer->width * videoBuffer->height), i32);
+    memoryIndex pixelCount = videoBuffer->width * videoBuffer->height;
+    memset(&depthBuffer[0], 0, pixelCount * sizeof(depthBuffer[OG_INT_MAX]));
+    
+    f32 screenWidth = (f32)videoBuffer->width;
+    f32 screenHeight = (f32)videoBuffer->height;
+    f32 aspectRatio = screenHeight / screenWidth;
+    
+    V3f camera = {0};
+    
+    // TODO(Jai): Temporary for time, pass time from platform layer
+    localPersist f32 period = 0.0f;
+    f32 theta =  PI;//period / (2.0f * PI);
+    if (period > 360.0f) { period = 0.0f; }
+    
+    // Transformation Matrices
+    Mat4D worldMatrix = ogMath_mat4d_make_identity();
+    Mat4D rotationX = ogMath_mat4d_make_rotationX(theta);
+    worldMatrix = ogMath_mat4d_multiply(rotationX, worldMatrix);
+    Mat4D awayFromCamera = ogMath_mat4d_make_translation(0.0f, 0.0f, 1.2f);
+    worldMatrix = ogMath_mat4d_multiply(awayFromCamera, worldMatrix);
+    
+    Mat4D projection = ogMath_mat4d_make_projection(aspectRatio, 106.0f, 0.1f, 1000.0f);
+    Mat4D translateByOne = ogMath_mat4d_make_translation(1.0f, 1.0f, 0.0f);
+    Mat4D scaling = ogMath_mat4d_make_scaling(0.5f * screenWidth, 0.5f * screenHeight, 1.0f);
+    Mat4D projectIntoView = ogMath_mat4d_multiply(translateByOne, projection);
+    projectIntoView = ogMath_mat4d_multiply(scaling, projectIntoView);
+    
+    // Draw the triangles
+    for (memoryIndex i = 0; i <= mesh.triangleCount; ++i) {
+        Triangle3f transformedTriangle = mesh.triangles[i];
+        transformedTriangle = ogRenderer_triangle_transform(&transformedTriangle, &worldMatrix);
+        // Calculate Normals
+        V3f line1 = ogMath_v3f_subtract(transformedTriangle.p[1], transformedTriangle.p[0]);
+        V3f line2 = ogMath_v3f_subtract(transformedTriangle.p[2], transformedTriangle.p[0]);
+        V3f normal = ogMath_v3f_cross(line1, line2);
+        normal = ogMath_v3f_normalize(normal);
+        
+        V3f viewFromCamera = ogMath_v3f_subtract(transformedTriangle.p[0], camera);
+        viewFromCamera = ogMath_v3f_normalize(viewFromCamera);
+        // only draw the triangles if it is visible
+        if (ogMath_v3f_dot(normal, viewFromCamera) < 0) {
+            // Illumination
+            V3f lightDirection = { 0.0f, 0.0f, -1.0f, 0 };
+            f32 luminence = ogMath_v3f_dot(normal, lightDirection);
+            luminence = MAX(0.1f, luminence);
+            Triangle2f textureCoordinates = mesh.textureCoords[i];
+            
+            u32 red = (u32)(128.0f * luminence);
+            u32 green = (u32)(128.0f * luminence);
+            u32 blue = (u32)(128.0f * luminence);
+            u32 fillColour = ogUtils_rgba_to_hex(red, green, blue, 255);
+            
+            f32 triangleZValues[3];
+            triangleZValues[0] = 1 / transformedTriangle.a.z;
+            triangleZValues[1] = 1 / transformedTriangle.b.z;
+            triangleZValues[2] = 1 / transformedTriangle.c.z;
+            
+            // Project the triangle from 3D -> 2D
+            transformedTriangle = ogRenderer_triangle_transform_homogeneous(&transformedTriangle, &projectIntoView);
+            
+            Triangle3f drawTriangle = {
+                .a = {transformedTriangle.p[0].x, transformedTriangle.p[0].y, triangleZValues[0], 0 },
+                .b = {transformedTriangle.p[1].x, transformedTriangle.p[1].y, triangleZValues[1], 0 },
+                .c = {transformedTriangle.p[2].x, transformedTriangle.p[2].y, triangleZValues[2], 0 },
+            };
+            
+            ogRenderer_fill_triangle_3D(videoBuffer,
+                                        &drawTriangle,
+                                        &depthBuffer[0],
+                                        fillColour);
+        }
+    }
+}
+
+#endif //OG_RENDERER

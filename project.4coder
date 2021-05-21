@@ -7,6 +7,7 @@ patterns = {
 "*.m",
 "*.bat",
 "*.sh",
+"*.hlsl",
 "*.4coder",
 };
 blacklist_patterns = {
@@ -47,8 +48,18 @@ command_list = {
 			{ "remedybg build\otter.rdbg" , .os = "win"   },
 		},
 	},
+	{
+		.name = "compile shaders",
+                .out = "*COMPILATION*",
+                .footer_panel = false,
+		.save_dirty_files = true,
+		.cmd = {
+			{ "compile_shaders.bat" , .os = "win"   },
+		},
+	},
 };
 
 fkey_command[1] = "build";
 fkey_command[2] = "build full";
+fkey_command[3] = "compile shaders";
 fkey_command[5] = "debug";

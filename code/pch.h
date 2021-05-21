@@ -6,5 +6,6 @@
 #include <Windows.h>
 #include <stdio.h>
 #include <math.h>
+#include <xinput.h>
 
 #endif //PCH_H

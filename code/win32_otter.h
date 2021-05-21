@@ -1,7 +1,7 @@
 /* date = January 11th 2021 9:53 pm */
 
-#ifndef WIN32_OTTER_H
-#define WIN32_OTTER_H
+#ifndef WIN32_OG_H
+#define WIN32_OG_H
 
 #define WIN32_STATE_FILE_NAME_COUNT MAX_PATH
 
@@ -47,7 +47,7 @@ typedef struct{
     FILETIME lastModifiedTime;
     HMODULE gameLibrary;
     
-    b32 isValid;
+    b8 isValid;
 } win32_GameCode;
 
-#endif //WIN32_OTTER_H
+#endif //WIN32_OG_H

@@ -6,7 +6,7 @@
 #include "otter_platform.h"
 #include "fpl_otter.h"
 
-global b32 global_running = true;
+global b8 global_running = true;
 
 global fplVideoBackbuffer* global_videoBackbufferPtr;
 
@@ -153,11 +153,11 @@ win32_unloadGameCode(win32_GameCode* gameCode) {
         return result;
     }
     
-    // b32 platform_file_writeEntire(ThreadContext* thread, char* fileName,
+    // b8 platform_file_writeEntire(ThreadContext* thread, char* fileName,
     //                               u32 memorySize, void* memory)
     PLATFORM_FILE_WRITE_ENTIRE(platform_file_writeEntire) {
         
-        b32 result = false;
+        b8 result = false;
         
         HANDLE fileHandle = CreateFileA(fileName,
                                         GENERIC_WRITE,
@@ -421,7 +421,7 @@ win32_unloadGameCode(win32_GameCode* gameCode) {
                                                      tempGameCodeLibFullPath);
 #endif
             
-            b32 reload = false;
+            b8 reload = false;
             i32 fileModified = false;
             
             while (global_running) {

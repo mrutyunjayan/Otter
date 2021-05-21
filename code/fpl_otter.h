@@ -1,7 +1,7 @@
 /* date = October 15th 2020 0:05 pm */
 
-#ifndef FPL_OTTER_H
-#define FPL_OTTER_H
+#ifndef FPL_OG_H
+#define FPL_OG_H
 
 #include "utils.h"
 
@@ -12,9 +12,9 @@ typedef struct win32_GameCode{
     FILETIME lastModifiedTime;
     HMODULE gameLibrary;
     
-    b32 isValid;
+    b8 isValid;
 } win32_GameCode;
 
 #endif
 
-#endif //FPL_OTTER_H
+#endif //FPL_OG_H

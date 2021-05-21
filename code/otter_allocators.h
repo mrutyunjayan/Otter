@@ -1,7 +1,7 @@
 /* date = February 24th 2021 5:25 pm */
 
-#ifndef OTTER_ALLOCATORS_H
-#define OTTER_ALLOCATORS_H
+#ifndef OG_ALLOCATORS_H
+#define OG_ALLOCATORS_H
 
 #include "utils.h"
 //~ CUSTOM ALLOCATORS
@@ -144,4 +144,4 @@ ogAlloc_arena_free(Arena* arena) {
 	arena->memoryBlockStart = 0;
 }
 
-#endif //OTTER_ALLOCATORS_H
+#endif //OG_ALLOCATORS_H

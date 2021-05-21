@@ -1,5 +1,5 @@
-#ifndef OTTER_MATH_H
-#define OTTER_MATH_H
+#ifndef OG_MATH_H
+#define OG_MATH_H
 
 #include "otter.h"
 
@@ -470,4 +470,4 @@ ogMath_interpolate_integers(i32 independentStart, i32 dependentStart,
     interpolatedValues[index] = dependentEnd;
 }
 
-#endif //OTTER_MATH
+#endif //OG_MATH

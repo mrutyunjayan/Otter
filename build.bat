@@ -1,10 +1,16 @@
 @ECHO OFF
-
-ECHO FULL COMPILATION
+ECHO  ==================
+ECHO [ FULL COMPILATION ]
+ECHO  ==================
+ECHO .
+CALL %cd%\compile_shaders.bat
 CALL %cd%\build_dll.bat
 
-
 PUSHD build
+
+ECHO  =======================
+ECHO  WIN32 LAYER COMPILATION
+ECHO  =======================
 
 clang-cl^
 	%defines%^

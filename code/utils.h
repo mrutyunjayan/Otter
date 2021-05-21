@@ -21,7 +21,7 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-typedef int32_t b32;
+typedef int8_t b8;
 typedef unsigned int uint;
 
 typedef float f32;
@@ -47,7 +47,7 @@ typedef size_t memoryIndex;
 
 #define ARRAY_COUNT(array) (sizeof(array) / sizeof(array[0]))
 
-#if OTTER_DEBUG
+#if OGDEBUG_RENDERER
 #undef ASSERT
 #define ASSERT(expression)\
 if(!(expression)) {\

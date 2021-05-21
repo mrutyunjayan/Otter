@@ -1,7 +1,7 @@
 /* date = October 12th 2020 2:39 pm */
 
-#ifndef OTTER_H
-#define OTTER_H
+#ifndef OG_H
+#define OG_H
 
 #include "utils.h"
 
@@ -28,4 +28,4 @@ typedef struct otter_GameState {
     Arena worldArena;
 } otter_GameState;
 
-#endif //OTTER_H
+#endif //OG_H

@@ -1,5 +1,5 @@
-#ifndef OTTER_FILE_H
-#define OTTER_FILE_H
+#ifndef OG_FILE_H
+#define OG_FILE_H
 
 #include "utils.h"
 #include "otter_platform.h"
@@ -39,35 +39,35 @@ ogFile_scan_line(FileReadResult file,
     return ogFile_scan_delimited(file, '\n', startOffset, out);
 }
 
-internal b32
+internal b8
 ogFile_load_objMesh(ThreadContext* thread,
                     Arena* scratch,
                     Arena* assetData,
                     Mesh* mesh,
                     platformFileReadFull* fileReadFull,
                     char* fileName) {
-	b32 result = false;
+	b8 result = false;
     FileReadResult file = fileReadFull(thread, fileName);
     
     if (!file.contentSize) { return false; }
     
-    b32 eof = false;
+    b8 eof = false;
     i32 charsReadFromFile = 0;
     i32 charsPrevReadFromFile = 0;
     
     V3f* vertexArray = 0;
-    b32 vertexArraySet = false;
+    b8 vertexArraySet = false;
     i32 verticesFound = 0;
     
     V2f* textureCoordsArray = 0;
-    b32 textureCoordsArraySet = false;
+    b8 textureCoordsArraySet = false;
     
     Triangle3f* triangleArray = 0;
-    b32 triangleArraySet = false;
+    b8 triangleArraySet = false;
     memoryIndex triangleCount = 0;
     memoryIndex textureCoordCount = 0;
     Triangle2f* textureCoordsTempArray = 0;
-    b32 textureCoordsTempArraySet = false;
+    b8 textureCoordsTempArraySet = false;
     char* endPtr;
     
     while (!eof) {
@@ -159,4 +159,4 @@ ogFile_load_objMesh(ThreadContext* thread,
     return result;
 }
 
-#endif // OTTER_FILE
+#endif // OG_FILE

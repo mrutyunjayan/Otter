@@ -39,8 +39,8 @@ set exports=^
 	-EXPORT:otterUpdateAndRender
 
 set defines=^
-	-DOTTER_D3D11^
-	-DOTTER_DEBUG
+	-DOG_D3D11^
+	-DOGDEBUG_RENDERER
 
 set libs=^
 	User32.lib^
