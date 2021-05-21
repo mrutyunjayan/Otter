@@ -56,6 +56,7 @@ references
 .vs
 .cache
 data
+windows_header_copies
 
 #windows header copies
 og_d3d10.h
@@ -94,4 +95,4 @@ og_dxgiddi.h
 og_dxgidebug.h
 og_hlsl.h
 og_stringapiset.h
-og_xinput.h 
+og_xinput.h
